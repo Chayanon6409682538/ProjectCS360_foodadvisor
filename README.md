@@ -53,6 +53,7 @@ then run `yarn && yarn dev`
   `chmod +x install_strapi_foodadvisor.sh`
 - Execute the script by running 
   `./install_strapi_foodadvisor.sh`
+## Project Screenshot
 ![Project Screenshot](image1.png)
 ![Project Screenshot](image2.png)
 ![Project Screenshot](image3.png)
