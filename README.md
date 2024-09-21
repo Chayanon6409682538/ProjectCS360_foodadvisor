@@ -17,8 +17,8 @@ The goal of the FoodAdvisor project is to create a user-friendly platform that f
 - Feature 4: Dynamic Food Menu
 - Feature 5: Role-Based Access Control
 ### Technologies Used
-- **Backend:** Strapi V5
-- **Frontend:** React.js 
+- **Backend:** Strapi V4
+- **Frontend:** Next.js 
 - **Hosting/Deployment:** AWS EC2
 - **Database:** SQLite
 ## How to deploy and run the project manually
