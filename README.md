@@ -30,17 +30,14 @@ The goal of the FoodAdvisor project is to create a user-friendly platform that f
 - Navigate to your project folder by running `cd ProjectCS360_foodadvisor` from your command line.
 5. Start Strapi: 
 - Navigate to your `./foodadvisor/api` folder by running `cd api` from your command line.
-then run `yarn build yarn start &`
+then run `yarn && yarn seed && yarn build && yarn start &`
 6. Start Next.js: 
 - Navigate to your `./foodadvisor/client` folder by running `cd client` from your command line.
-then run `yarn && yarn dev`
-7. Build the Frontend:
-- Open a new terminal window or tab, navigate to the `client` directory, and start the React app by running
-  `npm run build`
-8. Run the Backend:
-- Navigate back to the `api` directory and start the Strapi server by running
-  `npm run start`
-9. Open a web browser and go to your EC2 instance's public DNS or go to http://localhost:1337.
+then run `yarn && yarn build && yarn start`
+7. Accessing Strapi Backend on EC2
+- http://<EC2 public ip>:1337 for strapi backend
+8. Accessing Next.js Frontend on EC2
+- http://<EC2 public ip>:3000 next.js frontend
 ## How to deploy and run the project using the provided bash script [Specify the bash script path in the repo]
 1. Launch an EC2 Instance and download the key pair for SSH access.
 2. Connect to Your EC2 Instance.
