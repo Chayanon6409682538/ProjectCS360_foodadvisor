@@ -35,9 +35,9 @@ then run `yarn && yarn seed && yarn build && yarn start &`
 - Navigate to your `./foodadvisor/client` folder by running `cd client` from your command line.
 then run `yarn && yarn build && yarn start`
 7. Accessing Strapi Backend on EC2
-- http://<EC2 public ip>:1337 for strapi backend
+- `http://<EC2 public ip>:1337 for strapi backend`
 8. Accessing Next.js Frontend on EC2
-- http://<EC2 public ip>:3000 next.js frontend
+- `http://<EC2 public ip>:3000 next.js frontend`
 ## How to deploy and run the project using the provided bash script [Specify the bash script path in the repo]
 1. Launch an EC2 Instance and download the key pair for SSH access.
 2. Connect to Your EC2 Instance.
