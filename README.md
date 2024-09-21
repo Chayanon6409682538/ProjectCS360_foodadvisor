@@ -2,12 +2,12 @@
 ## Group Information
 - **Group Name:** PakPok
 ## Members
-| Name | Student ID |
-|------------------------------- ---|-----------------|
+| Name                         | Student ID |
+|------------------------------|------------|
 | Sakkapong Phiphatpornchaikul | 6309545033 |
-| Chayanon Khanrit | 6409682538 |
-| Supakorn Oupkaew | 6409682918 |
-| Anallena Libha | 6409682942 |
+| Chayanon Khanrit             | 6409682538 |
+| Supakorn Oupkaew             | 6409682918 |
+| Anallena Libha               | 6409682942 |
 ## Project Goal
 The goal of the FoodAdvisor project is to create a user-friendly platform that facilitates seamless content management and enhances user engagement. The aim is to further enhance this platform to make it even more user-friendly and customizable to meet users' needs. This will deliver a comprehensive solution that simplifies content management, improves the user experience, and fosters collaboration within the food community.
 ### Features
