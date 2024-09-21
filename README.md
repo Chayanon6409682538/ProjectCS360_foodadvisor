@@ -30,7 +30,7 @@ The goal of the FoodAdvisor project is to create a user-friendly platform that f
 - Navigate to your project folder by running `cd ProjectCS360_foodadvisor` from your command line.
 5. Start Strapi: 
 - Navigate to your `./foodadvisor/api` folder by running `cd api` from your command line.
-then run `yarn && yarn seed && yarn develop`
+then run `yarn build yarn start &`
 6. Start Next.js: 
 - Navigate to your `./foodadvisor/client` folder by running `cd client` from your command line.
 then run `yarn && yarn dev`
@@ -53,3 +53,6 @@ then run `yarn && yarn dev`
   `chmod +x install_strapi_foodadvisor.sh`
 - Execute the script by running 
   `./install_strapi_foodadvisor.sh`
+![Project Screenshot](image1.png)
+![Project Screenshot](image2.png)
+![Project Screenshot](image3.png)
