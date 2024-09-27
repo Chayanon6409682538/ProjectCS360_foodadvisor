@@ -118,25 +118,25 @@ After launching your EC2 instance and downloading the key pair for SSH access, f
 
     1. Updates the package lists for available software, ensuring you have the latest information.
             
-            sudo apt update
+            sudo yum update
         
     2. Installs curl, a tool for transferring data from or to a server.
 
-            sudo apt install curl
+            sudo yum install curl
 
     3. Downloads and executes the installation script for Node.js version 16.x.
 
-            curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+            curl -fsSL https://rpm.nodesource.com/setup_16.x | sudo -E bash -
 
     4. Installs Node.js without requiring user confirmation.
 
-            sudo apt install -y nodejs
+            sudo yum install -y nodejs
 
 - ### Install git:
 
     - run 
     
-            sudo apt install git 
+            sudo yum install git 
         
         to install git.
 
@@ -146,19 +146,15 @@ After launching your EC2 instance and downloading the key pair for SSH access, f
 
     1. Downloads Yarn's GPG key and adds it to the system's list of trusted keys, ensuring that packages from the Yarn repository can be verified.
 
-            curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+            curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
 
-    2. Adds the Yarn APT repository to your system's sources list, allowing you to install Yarn through the package manager.
+    2. Updates the local package index, so the system is aware of the latest packages available from the newly added Yarn repository.
 
-            echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+            sudo yum update
 
-    3. Updates the local package index, so the system is aware of the latest packages available from the newly added Yarn repository.
+    3. Installs Yarn, a package manager for JavaScript, using the APT package manager.
 
-            sudo apt update
-
-    4. Installs Yarn, a package manager for JavaScript, using the APT package manager.
-
-            sudo apt install yarn
+            sudo yum install yarn
 
 After install curl, node, git, and yarn, follow these steps: 
 
@@ -248,7 +244,7 @@ After launching your EC2 instance and downloading the key pair for SSH access, f
 
     - run 
     
-            sudo apt install git 
+            sudo yum install git 
         
         to install git.
 
