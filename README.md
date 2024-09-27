@@ -224,7 +224,7 @@ After install curl, node, git, and yarn, follow these steps:
 
     - Navigate to your `./foodadvisor/client` folder by running 
         
-            cd client` 
+            cd client 
             
         from your command line.
 
@@ -234,11 +234,11 @@ After install curl, node, git, and yarn, follow these steps:
 
 5. **Accessing Strapi Backend on EC2:**
 
-    - http://<EC2 public ip>:1337 for strapi backend
+    - http://[EC2 public ip]:1337 for strapi backend
 
 6. **Accessing Next.js Frontend on EC2:**
 
-    - http://<EC2 public ip>:3000 next.js frontend
+    - http://[EC2 public ip]:3000 next.js frontend
 
 ## 📌 How to deploy and run the project using the provided bash script [Specify the bash script path in the repo]
 
@@ -261,7 +261,7 @@ After install git, follow these steps:
 
     - Navigate to your project folder by running 
 
-            `cd ProjectCS360_foodadvisor` 
+            cd ProjectCS360_foodadvisor 
     
         from your command line.
 
