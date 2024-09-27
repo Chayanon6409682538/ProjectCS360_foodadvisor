@@ -2,26 +2,26 @@
 
 OS="$(uname)"
 if [ "$OS" = "Linux" ]; then
-echo "Running on Linux"
+    echo "Running on Linux"
 # Linux-specific commands
 else
-echo "Operating system not supported."
-exit 1
+    echo "Operating system not supported."
+    exit 1
 fi
 
 # Install Node.js and npm
 echo "Installing Node.js and npm"
-sudo apt install curl -y
-curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-sudo apt-get install -y nodejs || sudo yum install -y nodejs
+sudo yum install curl -y
+curl -fsSL https://rpm.nodesource.com/setup_16.x | sudo -E bash - 
+sudo apt install -y nodejs || sudo yum install -y nodejs
 
 # Check for Node.js and npm
 echo "Checking for Node.js..."
 if ! command -v node &> /dev/null
 then
-echo "Node.js not found. Please install Node.js and npm, then run
-this script again."
-exit 1
+    echo "Node.js not found. Please install Node.js and npm, then run
+    this script again."
+    exit 1
 fi
 
 # Verify installation node and npm
@@ -36,50 +36,33 @@ sudo apt install yarn -y || sudo yum install yarn -y
 echo "Checking for Yarn..."
 if ! command yarn --version &> /dev/null
 then
- echo "Yarnnot found. Please install Yarn and run this script again."
- exit 1
+    echo "Yarnnot found. Please install Yarn and run this script again."
+    exit 1
 fi
 yarn --version
 
-# Install Git
-#echo "Installing Git..."
-#sudo apt-get install -y git || sudo yum install -y git
-
-# Check for Git
-#echo "Checking for Git..."
-#if ! command -v git &> /dev/null
-#then
- #echo "Git not found. Please install Git and run this script again."
- #exit 1
-#fi
-#git --version
 
 # Update system packages
 echo "Updating system packages..."
-sudo apt-get update -y || sudo yum update -y
-
-# Clone the foodadvisor repository
-#echo "Cloning the Foodadvisor repository..."
-#git clone https://github.com/Chayanon6409682538/ProjectCS360_foodadvisor.git
+sudo apt update -y || sudo yum update -y
 
 
-# Navigate to directory
-#cd ProjectCS360_foodadvisor
+publicIPv4=$(curl ipinfo.io/ip)
+secret=$(openssl rand -base64 32)
 
-# Install project dependencies
-#echo "Installing project dependencies..."
-#yarn install
+#Setup .env
+#Set public ip backend
+touch api/.env
+echo HOST=0.0.0.0 > api/.env
+echo PORT=1337 >> api/.env
+echo STRAPI_ADMIN_CLIENT_URL=http://${publicIPv4}:3000 >> api/.env
+echo STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=${secret} >> api/.env
 
-#Set public ip
-cd client
-echo "Enter your Public ip:"
-read ip
-echo NEXT_PUBLIC_API_URL=http://${ip}:1337 > .env
-echo PREVIEW_SECRET=ARNFCb9zrC9ZHm5hZzCigWivD40icS4s  >> .env
-#cat >> .env <<EOL
-#NEXT_PUBLIC_API_URL==http://$ip:1337
+#Set public ip frontend
+touch client/.env
+echo NEXT_PUBLIC_API_URL=http://${publicIPv4}:1337 > client/.env
+echo PREVIEW_SECRET=${secret}  >> client/.env
 
-cd ..
 
 # Run backend
 echo "Starting the Strapi server..."
@@ -91,6 +74,7 @@ cd ..
 cd client
 yarn && yarn build && yarn start
 
-# Print successful message
-#echo "Strapi server is now running!"
-#echo "You can access it at http://${ip}:1337 or via the public EC2 IP"
+#Print successful message
+echo "Strapi server is now running!"
+echo "You can access to strapi backend at http://${publicIPv4}:1337"
+echo "You can access to web application at http://${publicIPv4}:3000"
