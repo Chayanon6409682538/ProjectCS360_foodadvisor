@@ -1,0 +1,41 @@
+name: Github Actions Workflow
+
+on: 
+  push:
+    branches: [master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [16.x]
+    runs-on: ${{ matrix.os }}
+    env:
+      HOST: '0.0.0.0'
+      PORT: '1337'
+      APP_KEYS: 'mock'
+      API_TOKEN_SALT: 'mock'
+      ADMIN_JWT_SECRET: 'mock'
+      #TRANSFER_TOKEN_SALT: 'mock'
+      #DATABASE_CLIENT: 'sqlite'
+      #DATABASE_FILENAME: '.tmp/data.db'
+      JWT_SECRET: 'mock'
+
+
+    steps:
+    - name: Check code
+      uses: actions/checkout@v4
+    - name: Setup node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install dependencies
+      run: npm ci
+    - name: Build project  
+      run: npm run build --if-present
+    - name: Test  
+      run: npm test
