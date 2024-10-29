@@ -44,6 +44,10 @@ const RestaurantContent = ({ pageData }) => {
     setMenuEditorVisible((prev) => !prev);
   };
 
+  const handleEditItems = (updatedItems) => {
+    setMenuItems(updatedItems);
+  };
+
   return (
     <Container>
       <section className="text-gray-600 body-font overflow-hidden mt-40">
@@ -144,7 +148,7 @@ const RestaurantContent = ({ pageData }) => {
               Menu Editor
             </p>
           </div>
-          <MenuEditor items={menuItems} />
+          <MenuEditor items={menuItems} onEdit={handleEditItems} />
           <button
         onClick={handleEditButtonClick}
         type="button"

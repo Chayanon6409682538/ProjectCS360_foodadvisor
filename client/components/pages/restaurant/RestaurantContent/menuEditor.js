@@ -1,14 +1,29 @@
 import React from 'react';
 
 const MenuEditor = ({ items, onEdit }) => {
+  
+  const handleAddNewItem = () => {
+    const newItem = {
+      type: 'Appetizer',
+      name: 'New Item',
+      price: '$0.00',
+      photo: '/images/default.jpg',
+    };
+
+    onEdit((prevItems) => [...prevItems, newItem]);
+  };
+
+  const onDelete = (index) => {
+    // Filter out the item based on its index
+    onEdit((prevItems) => prevItems.filter((_, i) => i !== index));
+  };
+
   return (
     <div className="overflow-x-auto mt-6">
       <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
         <thead>
           <tr>
-            <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider">
-              
-            </th>
+            <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider"></th>
             <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider">
               Photo
             </th>
@@ -20,9 +35,9 @@ const MenuEditor = ({ items, onEdit }) => {
             </th>
             <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider">
               Price
-            </th><th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider">
-            </th><th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider">
             </th>
+            <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider"></th>
+            <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider"></th>
           </tr>
         </thead>
         <tbody>
@@ -72,7 +87,7 @@ const MenuEditor = ({ items, onEdit }) => {
               </td>
               <td className="py-4 px-5">
                 <button
-                  onClick={() => onUpdate(item)}
+                  onClick={() => updateDetail(item)}
                   className="py-2 px-4 bg-secondary hover:bg-secondary-darker text-white text-sm font-semibold rounded-md shadow-sm"
                 >
                   Update
@@ -80,7 +95,7 @@ const MenuEditor = ({ items, onEdit }) => {
               </td>
               <td className="py-4 px-5">
                 <button
-                  onClick={() => onDelete(item)}
+                  onClick={() => onDelete(index)}
                   className="py-2 px-4 bg-primary hover:bg-primary-darker text-white text-sm font-semibold rounded-md shadow-sm"
                 >
                   Delete
@@ -88,6 +103,16 @@ const MenuEditor = ({ items, onEdit }) => {
               </td>
             </tr>
           ))}
+          <tr>
+            <td colSpan="7" className="text-center py-4">
+              <button
+                onClick={handleAddNewItem}
+                className="py-2 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-md shadow-sm"
+              >
+                New Menu
+              </button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
