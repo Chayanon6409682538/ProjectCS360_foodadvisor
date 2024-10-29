@@ -38,7 +38,7 @@ jobs:
       working-directory: ./api
 
     - name: Build project  
-      run: yarn build --if-present
+      run: yarn build
       working-directory: ./api
 
     - name: Test  
