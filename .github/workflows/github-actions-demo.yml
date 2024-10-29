@@ -14,16 +14,17 @@ jobs:
         os: [ubuntu-latest, redhat-lastest]
         node-version: [16.x]
     runs-on: ${{ matrix.os }}
-    # env:
-    #   HOST: '0.0.0.0'
-    #   PORT: '1337'
-    #   APP_KEYS: 'mock'
-    #   API_TOKEN_SALT: 'mock'
-    #   ADMIN_JWT_SECRET: 'mock'
-    #   #TRANSFER_TOKEN_SALT: 'mock'
-    #   #DATABASE_CLIENT: 'sqlite'
-    #   #DATABASE_FILENAME: '.tmp/data.db'
-    #   JWT_SECRET: 'mock'
+    env:
+      HOST: '0.0.0.0'
+      PORT: '1337'
+      APP_KEYS: 'mock'
+      API_TOKEN_SALT: 'mock'
+      #TRANSFER_TOKEN_SALT: 'mock'
+      #DATABASE_CLIENT: 'sqlite'
+      #DATABASE_FILENAME: '.tmp/data.db'
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
+      STRAPI_ADMIN_CLIENT_PREVIEW_SECRET: ${{ secrets.STRAPI_ADMIN_CLIENT_PREVIEW_SECRET }}
 
 
     steps:
@@ -42,5 +43,7 @@ jobs:
       working-directory: ./api
 
     - name: Test  
-      run: yarn test
+      run: 
+        yarn test
+        echo "my STRAPI_ADMIN_CLIENT_PREVIEW_SECRET is ${{ secrets.STRAPI_ADMIN_CLIENT_PREVIEW_SECRET }}"
       working-directory: ./api
