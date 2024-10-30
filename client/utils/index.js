@@ -141,3 +141,26 @@ export async function getArticles(key) {
 
   return { articles: articles.data, count: articles.meta.pagination.total };
 }
+
+export async function createMenu(params) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/menus`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create menu item');
+    }
+
+    const newMenu = await response.json();
+    return newMenu;
+  } catch (error) {
+    console.error('Error creating menu:', error);
+    throw error;
+  }
+}
+

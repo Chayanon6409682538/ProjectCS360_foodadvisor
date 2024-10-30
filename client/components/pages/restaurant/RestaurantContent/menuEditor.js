@@ -1,9 +1,31 @@
 import React from 'react';
-import { getStrapiMedia } from '../../../../utils/index'; // Import the utility to handle media URLs
+import { getStrapiMedia, createMenu } from '../../../../utils/index';
 
 const MenuEditor = ({ items, onEdit }) => {
   const handleAddNewItem = () => {
-    // Logic to add a new menu item
+    const newMenuItem = {
+      data: {
+        name: 'New Menu',
+        price: 0.00,
+        type: 'Main Menu',
+        isAvaliable: false,
+        photo: {
+          data: {
+            id: 1 // Assuming the photo already exists in your Strapi media library
+          }
+        }
+      }
+    };
+    
+    
+    createMenu(newMenuItem)
+      .then((createdMenu) => {
+        console.log('Menu item created:', createdMenu);
+      })
+      .catch((error) => {
+        console.error('Error creating menu item:', error);
+      });
+    
   };
 
   const onDelete = (index) => {
