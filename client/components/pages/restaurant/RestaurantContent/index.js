@@ -153,9 +153,9 @@ const RestaurantContent = ({ pageData }) => {
           <button
         onClick={handleEditButtonClick}
         type="button"
-        className="self-end mt-4 mr-2 py-4 px-6 bg-secondary hover:bg-secondary-darker text-white w-[100px] text-center text-base font-semibold shadow-sm rounded-md"
+        className="self-end mt-4 mr-2 py-4 px-6 bg-primary hover:bg-primary-darker text-white w-[80px] text-center text-base font-semibold shadow-sm rounded-md"
       >
-        <span>Confirm</span>
+        <span>X</span>
       </button>
         </section>
       )}
