@@ -1,27 +1,14 @@
 import React from 'react';
+import { getStrapiMedia } from '../../../../utils/index'; // Import the utility to handle media URLs
 
 const MenuEditor = ({ items, onEdit }) => {
-  // Group items by type, filtering only available ones
-  const groupedItems = items.reduce((acc, item) => {
-    const { attributes } = item;
-    if (attributes && attributes.isAvaliable) {
-      const { type } = attributes;
-      if (!acc[type]) acc[type] = [];
-      acc[type].push(item);
-    }
-    return acc;
-  }, {});
-
-  const hasAvailableItems = Object.keys(groupedItems).length > 0;
-
   const handleAddNewItem = () => {
     // Logic to add a new menu item
   };
 
-  const onDelete = (index, type) => {
-    onEdit((prevItems) =>
-      prevItems.filter((item, i) => i !== index || item.attributes.type !== type)
-    );
+  const onDelete = (index) => {
+    // Filter out the item based on its index
+    onEdit((prevItems) => prevItems.filter((_, i) => i !== index));
   };
 
   return (
@@ -39,83 +26,75 @@ const MenuEditor = ({ items, onEdit }) => {
           </tr>
         </thead>
         <tbody>
-          {hasAvailableItems ? (
-            Object.keys(groupedItems).map((type) => (
-              <React.Fragment key={type}>
-                <tr>
-                  <td colSpan="7" className="text-left font-bold py-4 px-5 bg-gray-200">
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </td>
-                </tr>
-                {groupedItems[type].map((item, index) => (
-                  <tr key={index} className="border-b border-gray-200">
-                    <td className="py-4 px-5">
-                      <button
-                        onClick={() => updatePhoto(item)}
-                        className="py-2 px-4 bg-secondary text-white font-semibold rounded-md"
-                      >
-                        Change Photo
-                      </button>
-                    </td>
-                    <td className="py-4 px-5">
-                      <img
-                        src={item.attributes.photo}
-                        alt={item.attributes.name}
-                        className="h-16 w-16 object-cover rounded-lg"
-                      />
-                    </td>
-                    <td className="py-4 px-5">
-                      <select
-                        defaultValue={item.attributes.type}
-                        className="w-full border-gray-300 rounded-md"
-                      >
-                        <option value="Appetizer">Appetizer</option>
-                        <option value="Main Menu">Main Menu</option>
-                        <option value="Dessert">Dessert</option>
-                        <option value="Drinks">Drinks</option>
-                      </select>
-                    </td>
-                    <td className="py-4 px-5">
-                      <input
-                        type="text"
-                        defaultValue={item.attributes.name}
-                        className="w-full border-gray-300 rounded-md"
-                      />
-                    </td>
-                    <td className="py-4 px-5">
-                      <input
-                        type="text"
-                        defaultValue={item.attributes.price}
-                        className="w-full border-gray-300 rounded-md"
-                      />
-                    </td>
-                    <td className="py-4 px-5">
-                      <button
-                        onClick={() => updateDetail(item)}
-                        className="py-2 px-4 bg-secondary text-white font-semibold rounded-md"
-                      >
-                        Update
-                      </button>
-                    </td>
-                    <td className="py-4 px-5">
-                      <button
-                        onClick={() => onDelete(index, type)}
-                        className="py-2 px-4 bg-primary text-white font-semibold rounded-md"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </React.Fragment>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="7" className="text-center text-gray-600 py-8 font-semibold">
-                No available menu items at the moment.
-              </td>
-            </tr>
-          )}
+          {items.map((item, index) => {
+            const { attributes } = item;
+            const photoUrl = attributes.photo?.data
+              ? getStrapiMedia(attributes.photo.data.attributes.url)
+              : 'default-image-url'; // Use a default image URL if none exists
+
+            return (
+              <tr key={index} className="border-b border-gray-200">
+                <td className="py-4 px-5">
+                  <button
+                    onClick={() => updatePhoto(item)} // Add your updatePhoto logic
+                    className="py-2 px-4 bg-secondary text-white font-semibold rounded-md"
+                  >
+                    Change Photo
+                  </button>
+                </td>
+                <td className="py-4 px-5">
+                  <img
+                    src={photoUrl}
+                    alt={attributes.photo?.data?.attributes?.alternativeText || attributes.name}
+                    className="h-16 w-16 object-cover rounded-lg"
+                  />
+                </td>
+                <td className="py-4 px-5">
+                  <select
+                    defaultValue={attributes.type}
+                    className="w-full border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring focus:ring-blue-300"
+                  >
+                    <option value="Appetizer">Appetizer</option>
+                    <option value="Main Menu">Main Menu</option>
+                    <option value="Dessert">Dessert</option>
+                    <option value="Drinks">Drinks</option>
+                  </select>
+                </td>
+                <td className="py-4 px-5">
+                  <input
+                    type="text"
+                    defaultValue={attributes.name}
+                    className="w-full border border-gray-300 rounded-md bg-gray-100 text-gray-700 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                    placeholder="Enter name"
+                  />
+                </td>
+                <td className="py-4 px-5">
+                  <input
+                    type="text"
+                    defaultValue={attributes.price}
+                    className="w-full border border-gray-300 rounded-md bg-gray-100 text-gray-700 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                    placeholder="Enter price"
+                  />
+                </td>
+                <td className="py-4 px-5">
+                  <button
+                    onClick={() => updateDetail(item)} // Add your updateDetail logic
+                    className="py-2 px-4 bg-secondary text-white font-semibold rounded-md"
+                  >
+                    Update
+                  </button>
+                </td>
+                <td className="py-4 px-5">
+                  <button
+                    onClick={() => onDelete(index)}
+                    className="py-2 px-4 bg-primary text-white font-semibold rounded-md"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
           <tr>
             <td colSpan="7" className="text-center py-4">
               <button
