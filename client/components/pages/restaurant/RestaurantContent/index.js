@@ -36,9 +36,6 @@ const RestaurantContent = ({ pageData }) => {
     const fetchedMenuItems = delve(pageData, "attributes.menus.data");
     if (fetchedMenuItems && fetchedMenuItems.length > 0) {
       setMenuItems(fetchedMenuItems);
-      //console.log(menuItems);
-    } else {
-      setMenuItems(defaultMenuData);
     }
   }, [pageData]);
 
