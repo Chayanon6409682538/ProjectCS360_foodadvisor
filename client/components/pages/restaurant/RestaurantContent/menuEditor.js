@@ -1,21 +1,27 @@
 import React from 'react';
 
 const MenuEditor = ({ items, onEdit }) => {
-  
-  const handleAddNewItem = () => {
-    const newItem = {
-      type: 'Appetizer',
-      name: 'New Item',
-      price: '$0.00',
-      photo: '/images/default.jpg',
-    };
+  // Group items by type, filtering only available ones
+  const groupedItems = items.reduce((acc, item) => {
+    const { attributes } = item;
+    if (attributes && attributes.isAvaliable) {
+      const { type } = attributes;
+      if (!acc[type]) acc[type] = [];
+      acc[type].push(item);
+    }
+    return acc;
+  }, {});
 
-    onEdit((prevItems) => [...prevItems, newItem]);
+  const hasAvailableItems = Object.keys(groupedItems).length > 0;
+
+  const handleAddNewItem = () => {
+    // Logic to add a new menu item
   };
 
-  const onDelete = (index) => {
-    // Filter out the item based on its index
-    onEdit((prevItems) => prevItems.filter((_, i) => i !== index));
+  const onDelete = (index, type) => {
+    onEdit((prevItems) =>
+      prevItems.filter((item, i) => i !== index || item.attributes.type !== type)
+    );
   };
 
   return (
@@ -23,91 +29,98 @@ const MenuEditor = ({ items, onEdit }) => {
       <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
         <thead>
           <tr>
-            <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider"></th>
-            <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider">
-              Photo
-            </th>
-            <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider">
-              Type
-            </th>
-            <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider">
-              Name
-            </th>
-            <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider">
-              Price
-            </th>
-            <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider"></th>
-            <th className="py-3 px-5 text-left bg-gray-100 text-gray-600 font-semibold uppercase tracking-wider"></th>
+            <th className="py-3 px-5 bg-gray-100 font-semibold uppercase"></th>
+            <th className="py-3 px-5 bg-gray-100 font-semibold uppercase">Photo</th>
+            <th className="py-3 px-5 bg-gray-100 font-semibold uppercase">Type</th>
+            <th className="py-3 px-5 bg-gray-100 font-semibold uppercase">Name</th>
+            <th className="py-3 px-5 bg-gray-100 font-semibold uppercase">Price</th>
+            <th className="py-3 px-5 bg-gray-100 font-semibold uppercase"></th>
+            <th className="py-3 px-5 bg-gray-100 font-semibold uppercase"></th>
           </tr>
         </thead>
         <tbody>
-          {items.map((item, index) => (
-            <tr key={index} className="border-b border-gray-200">
-              <td className="py-4 px-5">
-                <button
-                  onClick={() => updatePhoto(item)}
-                  className="py-2 px-4 bg-secondary hover:bg-secondary-darker text-white text-sm font-semibold rounded-md shadow-sm"
-                >
-                  Change Photo
-                </button>
-              </td>
-              <td className="py-4 px-5">
-                <img
-                  src={item.photo}
-                  alt={item.name}
-                  className="h-16 w-16 object-cover rounded-lg"
-                />
-              </td>
-              <td className="py-4 px-5">
-                <select
-                  defaultValue={item.type}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
-                >
-                  <option value="Appetizer">Appetizer</option>
-                  <option value="Main Menu">Main Menu</option>
-                  <option value="Dessert">Dessert</option>
-                  <option value="Drinks">Drinks</option>
-                </select>
-              </td>
-              <td className="py-4 px-5">
-                <input
-                  type="text"
-                  defaultValue={item.name}
-                  placeholder={item.name}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
-                />
-              </td>
-              <td className="py-4 px-5">
-                <input
-                  type="text"
-                  defaultValue={item.price}
-                  placeholder={item.price}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
-                />
-              </td>
-              <td className="py-4 px-5">
-                <button
-                  onClick={() => updateDetail(item)}
-                  className="py-2 px-4 bg-secondary hover:bg-secondary-darker text-white text-sm font-semibold rounded-md shadow-sm"
-                >
-                  Update
-                </button>
-              </td>
-              <td className="py-4 px-5">
-                <button
-                  onClick={() => onDelete(index)}
-                  className="py-2 px-4 bg-primary hover:bg-primary-darker text-white text-sm font-semibold rounded-md shadow-sm"
-                >
-                  Delete
-                </button>
+          {hasAvailableItems ? (
+            Object.keys(groupedItems).map((type) => (
+              <React.Fragment key={type}>
+                <tr>
+                  <td colSpan="7" className="text-left font-bold py-4 px-5 bg-gray-200">
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </td>
+                </tr>
+                {groupedItems[type].map((item, index) => (
+                  <tr key={index} className="border-b border-gray-200">
+                    <td className="py-4 px-5">
+                      <button
+                        onClick={() => updatePhoto(item)}
+                        className="py-2 px-4 bg-secondary text-white font-semibold rounded-md"
+                      >
+                        Change Photo
+                      </button>
+                    </td>
+                    <td className="py-4 px-5">
+                      <img
+                        src={item.attributes.photo}
+                        alt={item.attributes.name}
+                        className="h-16 w-16 object-cover rounded-lg"
+                      />
+                    </td>
+                    <td className="py-4 px-5">
+                      <select
+                        defaultValue={item.attributes.type}
+                        className="w-full border-gray-300 rounded-md"
+                      >
+                        <option value="Appetizer">Appetizer</option>
+                        <option value="Main Menu">Main Menu</option>
+                        <option value="Dessert">Dessert</option>
+                        <option value="Drinks">Drinks</option>
+                      </select>
+                    </td>
+                    <td className="py-4 px-5">
+                      <input
+                        type="text"
+                        defaultValue={item.attributes.name}
+                        className="w-full border-gray-300 rounded-md"
+                      />
+                    </td>
+                    <td className="py-4 px-5">
+                      <input
+                        type="text"
+                        defaultValue={item.attributes.price}
+                        className="w-full border-gray-300 rounded-md"
+                      />
+                    </td>
+                    <td className="py-4 px-5">
+                      <button
+                        onClick={() => updateDetail(item)}
+                        className="py-2 px-4 bg-secondary text-white font-semibold rounded-md"
+                      >
+                        Update
+                      </button>
+                    </td>
+                    <td className="py-4 px-5">
+                      <button
+                        onClick={() => onDelete(index, type)}
+                        className="py-2 px-4 bg-primary text-white font-semibold rounded-md"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </React.Fragment>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="7" className="text-center text-gray-600 py-8 font-semibold">
+                No available menu items at the moment.
               </td>
             </tr>
-          ))}
+          )}
           <tr>
             <td colSpan="7" className="text-center py-4">
               <button
                 onClick={handleAddNewItem}
-                className="py-2 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-md shadow-sm"
+                className="py-2 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-md"
               >
                 New Menu
               </button>
