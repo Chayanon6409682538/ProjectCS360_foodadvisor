@@ -32,13 +32,14 @@ const RestaurantContent = ({ pageData }) => {
   const [menuItems, setMenuItems] = useState([]);
   const [isMenuEditorVisible, setMenuEditorVisible] = useState(false);
   useEffect(() => {
-    const fetchedMenuItems = delve(pageData, "attributes.menuItems.data");
+    const fetchedMenuItems = delve(pageData, "attributes.menus.data");
     if (fetchedMenuItems && fetchedMenuItems.length > 0) {
       setMenuItems(fetchedMenuItems);
     } else {
       setMenuItems(defaultMenuData);
     }
   }, [pageData]);
+  console.log(menuItems);
 
   const handleEditButtonClick = () => {
     setMenuEditorVisible((prev) => !prev);

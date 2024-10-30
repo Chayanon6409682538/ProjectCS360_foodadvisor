@@ -127,6 +127,12 @@
       "relation": "oneToMany",
       "target": "api::review.review",
       "mappedBy": "restaurant"
+    },
+    "menus": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::menu.menu",
+      "mappedBy": "restaurant"
     }
   }
 }
