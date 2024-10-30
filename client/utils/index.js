@@ -164,3 +164,34 @@ export async function createMenu(params) {
   }
 }
 
+export async function connectRelation(menuId, restaurantsId) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/restaurants/${restaurantsId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: {
+          menus: {
+            connect: [menuId]
+          }
+        }
+      }),
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      console.error('Error details:', errorResponse);
+      throw new Error('Failed to connect relation');
+    }
+
+    const updatedMenu = await response.json();
+    return updatedMenu;
+  } catch (error) {
+    console.error('Error connecting relation:', error);
+    throw error;
+  }
+}
+
+

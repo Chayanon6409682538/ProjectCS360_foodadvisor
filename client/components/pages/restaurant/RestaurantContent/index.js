@@ -28,6 +28,7 @@ const RestaurantContent = ({ pageData }) => {
   const opening_hours = delve(information, "opening_hours");
   const location = delve(information, "location");
   const socialNetworks = delve(pageData, "attributes.socialNetworks");
+  const resterantId = delve(pageData, "id");
 
   const [menuItems, setMenuItems] = useState([]);
   const [isMenuEditorVisible, setMenuEditorVisible] = useState(false);
@@ -35,7 +36,7 @@ const RestaurantContent = ({ pageData }) => {
     const fetchedMenuItems = delve(pageData, "attributes.menus.data");
     if (fetchedMenuItems && fetchedMenuItems.length > 0) {
       setMenuItems(fetchedMenuItems);
-      console.log(menuItems);
+      //console.log(menuItems);
     } else {
       setMenuItems(defaultMenuData);
     }
@@ -149,7 +150,7 @@ const RestaurantContent = ({ pageData }) => {
               Menu Editor
             </p>
           </div>
-          <MenuEditor items={menuItems} onEdit={handleEditItems} />
+          <MenuEditor items={menuItems} onEdit={handleEditItems} restaurantId={resterantId} />
           <button
         onClick={handleEditButtonClick}
         type="button"

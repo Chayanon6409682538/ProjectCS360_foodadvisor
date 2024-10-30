@@ -1,7 +1,7 @@
 import React from 'react';
-import { getStrapiMedia, createMenu } from '../../../../utils/index';
+import { getStrapiMedia, createMenu, connectRelation } from '../../../../utils/index';
 
-const MenuEditor = ({ items, onEdit }) => {
+const MenuEditor = ({ items, onEdit, restaurantId }) => {
   const handleAddNewItem = () => {
     const newMenuItem = {
       data: {
@@ -21,11 +21,17 @@ const MenuEditor = ({ items, onEdit }) => {
     createMenu(newMenuItem)
       .then((createdMenu) => {
         console.log('Menu item created:', createdMenu);
+
+        // After the menu item is created, connect the relation
+        const newMenuId = createdMenu.data.id; // Get the newly created menu item's ID
+        return connectRelation(newMenuId, restaurantId); // Pass the correct IDs
+      })
+      .then((connectRelation) => {
+        console.log('Relation connected:', connectRelation);
       })
       .catch((error) => {
-        console.error('Error creating menu item:', error);
+        console.error('Error:', error); // Combined error handling for easier debugging
       });
-    
   };
 
   const onDelete = (index) => {
