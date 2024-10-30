@@ -18,26 +18,41 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
       }
     };
     
-    
     createMenu(newMenuItem)
       .then((createdMenu) => {
         console.log('Menu item created:', createdMenu);
-
-        // After the menu item is created, connect the relation
         const newMenuId = createdMenu.data.id; // Get the newly created menu item's ID
+        onEdit((prevItems) => [
+          ...prevItems,
+          {
+            ...createdMenu.data,
+            attributes: {
+              ...createdMenu.data.attributes,
+              isAvaliable: false, // Ensure isAvaliable matches your default
+            },
+          },
+        ]);
         return connectRelation(newMenuId, restaurantId); // Pass the correct IDs
       })
       .then((connectRelation) => {
         console.log('Relation connected:', connectRelation);
       })
       .catch((error) => {
-        console.error('Error:', error); // Combined error handling for easier debugging
+        console.error('Error:', error);
       });
   };
 
   const onDelete = (index) => {
-    // Filter out the item based on its index
     onEdit((prevItems) => prevItems.filter((_, i) => i !== index));
+  };
+
+  const handleAvailabilityChange = (index, isAvailable) => {
+    // Update the isAvaliable status in the items state
+    onEdit((prevItems) => {
+      const updatedItems = [...prevItems];
+      updatedItems[index].attributes.isAvaliable = isAvailable;
+      return updatedItems;
+    });
   };
 
   return (
@@ -51,6 +66,7 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
               <th className="py-3 px-5 bg-gray-100 font-semibold uppercase">Type</th>
               <th className="py-3 px-5 bg-gray-100 font-semibold uppercase">Name</th>
               <th className="py-3 px-5 bg-gray-100 font-semibold uppercase">Price</th>
+              <th className="py-3 px-5 bg-gray-100 font-semibold uppercase">Is Available</th>
               <th className="py-3 px-5 bg-gray-100 font-semibold uppercase"></th>
               <th className="py-3 px-5 bg-gray-100 font-semibold uppercase"></th>
             </tr>
@@ -61,12 +77,12 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
               const photoUrl = attributes.photo?.data
                 ? getStrapiMedia(attributes.photo.data.attributes.url)
                 : 'default-image-url';
-  
+
               return (
                 <tr key={index} className="border-b border-gray-200">
                   <td className="py-4 px-5">
                     <button
-                      onClick={() => updatePhoto(item)}
+                      onClick={() => updatePhoto(item)} // Assuming updatePhoto is defined elsewhere
                       className="py-2 px-4 bg-secondary text-white font-semibold rounded-md"
                     >
                       Change Photo
@@ -107,6 +123,16 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
                     />
                   </td>
                   <td className="py-4 px-5">
+                    <select
+                      value={attributes.isAvaliable}
+                      onChange={(e) => handleAvailabilityChange(index, e.target.value === 'true')}
+                      className="w-full border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring focus:ring-blue-300"
+                    >
+                      <option value="true">Available</option>
+                      <option value="false">Not Available</option>
+                    </select>
+                  </td>
+                  <td className="py-4 px-5">
                     <button
                       onClick={() => updateDetail(item)} // Add your updateDetail logic
                       className="py-2 px-4 bg-secondary text-white font-semibold rounded-md"
@@ -126,7 +152,7 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
               );
             })}
             <tr>
-              <td colSpan="7" className="text-center py-4">
+              <td colSpan="8" className="text-center py-4">
                 <button
                   onClick={handleAddNewItem}
                   className="py-2 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-md"
@@ -141,13 +167,12 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
         <div className="flex flex-col text-center text-gray-600 font-semibold py-8">
           No menu items available.
           <button
-                  onClick={handleAddNewItem}
-                  className="py-2 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-md w-[120px] self-center mt-4"
-                >
-                  New Menu
-                </button>
+            onClick={handleAddNewItem}
+            className="py-2 px-4 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-md w-[120px] self-center mt-4"
+          >
+            New Menu
+          </button>
         </div>
-        
       )}
     </div>
   );  
