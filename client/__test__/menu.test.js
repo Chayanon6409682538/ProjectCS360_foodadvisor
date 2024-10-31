@@ -4,6 +4,7 @@ describe('Unit Tests for createMenu Function', () => {
   // Mocking the global fetch
   beforeAll(() => {
     global.fetch = jest.fn();
+    jest.spyOn(console, 'error').mockImplementation(() => {}); // Mock console.error
   });
 
   afterAll(() => {
