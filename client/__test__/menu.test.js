@@ -6,6 +6,15 @@ const {
   changePhoto,
 } = require('../services/menu-services');
 
+// Mock the File object
+global.File = class {
+  constructor(fileBits, fileName, options) {
+    this.fileBits = fileBits;
+    this.fileName = fileName;
+    this.options = options || {};
+  }
+};
+
 describe('Menu Services Tests', () => {
   // Mocking the global fetch and console.error
   beforeAll(() => {
