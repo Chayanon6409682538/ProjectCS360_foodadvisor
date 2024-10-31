@@ -35,6 +35,10 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
+
+    - name: Install yarn
+      run: npm install -g yarn
+
     - name: Install dependencies in api
       run: yarn
       working-directory: ./api
