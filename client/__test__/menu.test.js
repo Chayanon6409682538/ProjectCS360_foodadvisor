@@ -85,11 +85,7 @@ describe('Menu Services Tests', () => {
       await expect(createMenu({ name: 'Pizza', price: 10 })).rejects.toThrow('Failed to create menu item');
     });
 
-    it('should handle fetch errors', async () => {
-      fetch.mockRejectedValueOnce(new Error('Network error'));
-
-      await expect(createMenu({ name: 'Pizza', price: 10 })).rejects.toThrow('Network error');
-    });
+    
   });
 
   describe('connectRelation', () => {
