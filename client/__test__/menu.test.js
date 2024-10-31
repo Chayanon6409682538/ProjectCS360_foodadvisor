@@ -178,6 +178,8 @@ describe('Menu Services Tests', () => {
     });
   });
 
+  const mockFile = new File([""], "photo.jpg", { type: "image/jpeg" }); // Mock image file
+  
   describe('changePhoto', () => {
     const mockFile = new File([''], 'photo.jpg', { type: 'image/jpeg' });
 
