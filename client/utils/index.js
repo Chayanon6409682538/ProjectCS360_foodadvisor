@@ -194,4 +194,26 @@ export async function connectRelation(menuId, restaurantsId) {
   }
 }
 
+export async function updateMenu(menuID, items) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/menus/${menuID}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(items),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update menu item');
+    }
+
+    const newMenu = await response.json();
+    return newMenu;
+  } catch (error) {
+    console.error('Error updating menu:', error);
+    throw error;
+  }
+}
+
 

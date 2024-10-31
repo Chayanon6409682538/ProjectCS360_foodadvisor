@@ -1,5 +1,5 @@
 import React from 'react';
-import { getStrapiMedia, createMenu, connectRelation } from '../../../../utils/index';
+import { getStrapiMedia, createMenu, connectRelation, updateMenu } from '../../../../utils/index';
 
 const MenuEditor = ({ items, onEdit, restaurantId }) => {
 
@@ -41,6 +41,34 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
         console.error('Error:', error);
       });
   };
+
+  const updateDetail = (item, index) => {
+    const updatedItem = {
+      data: {
+        name: document.getElementById(`name-${index}`).value,
+        price: parseFloat(document.getElementById(`price-${index}`).value),
+        type: document.getElementById(`type-${index}`).value,
+        isAvaliable: document.getElementById(`availability-${index}`).value === 'true',
+      },
+    };
+  
+    updateMenu(item.id, updatedItem)
+      .then((updatedData) => {
+        console.log('Menu item updated:', updatedData);
+        onEdit((prevItems) => {
+          const updatedItems = [...prevItems];
+          updatedItems[index] = {
+            ...updatedItems[index],
+            attributes: updatedData.data.attributes,
+          };
+          return updatedItems;
+        });
+      })
+      .catch((error) => {
+        console.error('Error updating item:', error);
+      });
+  };
+  
 
   const onDelete = (index) => {
     onEdit((prevItems) => prevItems.filter((_, i) => i !== index));
@@ -97,6 +125,7 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
                   </td>
                   <td className="py-4 px-5">
                     <select
+                      id={`type-${index}`}
                       defaultValue={attributes.type}
                       className="w-full border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring focus:ring-blue-300"
                     >
@@ -109,6 +138,7 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
                   <td className="py-4 px-5">
                     <input
                       type="text"
+                      id={`name-${index}`}
                       defaultValue={attributes.name}
                       className="w-full border border-gray-300 rounded-md bg-gray-100 text-gray-700 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                       placeholder="Enter name"
@@ -117,6 +147,7 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
                   <td className="py-4 px-5">
                     <input
                       type="text"
+                      id={`price-${index}`}
                       defaultValue={attributes.price}
                       className="w-full border border-gray-300 rounded-md bg-gray-100 text-gray-700 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                       placeholder="Enter price"
@@ -124,6 +155,7 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
                   </td>
                   <td className="py-4 px-5">
                     <select
+                      id={`availability-${index}`}
                       value={attributes.isAvaliable}
                       onChange={(e) => handleAvailabilityChange(index, e.target.value === 'true')}
                       className="w-full border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring focus:ring-blue-300"
@@ -134,7 +166,7 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
                   </td>
                   <td className="py-4 px-5">
                     <button
-                      onClick={() => updateDetail(item)} // Add your updateDetail logic
+                      onClick={() => updateDetail(item, index)}
                       className="py-2 px-4 bg-secondary text-white font-semibold rounded-md"
                     >
                       Update
