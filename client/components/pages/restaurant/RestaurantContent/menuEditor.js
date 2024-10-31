@@ -1,11 +1,11 @@
 import {React, useState, useRef} from 'react';
-import { getStrapiMedia, 
-         createMenu, 
+import { getStrapiMedia } from "../../../../utils";
+import { createMenu, 
          connectRelation, 
          updateMenu, 
          deleteMenu,
          changePhoto  
-          } from '../../../../utils/index';
+          } from '../../../../services/menu-services';
 
 const MenuEditor = ({ items, onEdit, restaurantId }) => {
   const [selectedPhotos, setSelectedPhotos] = useState({});
