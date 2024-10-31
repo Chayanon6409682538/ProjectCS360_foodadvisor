@@ -12,8 +12,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        node-version: [16.x, 18.x]
+        os: [ubuntu-latest, macos-latest]
+        node-version: [14.x, 16.x, 18.x]
     runs-on: ${{ matrix.os }}
     # env:
     #   HOST: '0.0.0.0'
@@ -36,7 +36,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies in api
-      run: yarn install
+      run: yarn
       working-directory: ./api
 
     - name: Build project  
@@ -44,7 +44,7 @@ jobs:
       working-directory: ./api
 
     - name: Install dependencies in client
-      run: yarn install
+      run: yarn
       working-directory: ./client
 
     - name: Test unit test client
