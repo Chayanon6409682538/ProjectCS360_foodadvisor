@@ -6,12 +6,21 @@ const {
   changePhoto,
 } = require('../services/menu-services');
 
+const FormData = require('form-data');
+
 // Mock the File object
 global.File = class {
   constructor(fileBits, fileName, options) {
     this.fileBits = fileBits;
     this.fileName = fileName;
     this.options = options || {};
+  }
+};
+
+//Mock FormData
+global.FormData = class FormDataMock {
+  constructor() {
+    this.append = jest.fn();
   }
 };
 
