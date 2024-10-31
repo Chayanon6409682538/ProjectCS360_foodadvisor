@@ -121,12 +121,7 @@ async function changePhoto(file, itemID) {
       // 3. Upload the new photo
       const formData = new FormData();
       formData.append('files', file);
-  
-      if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
-        throw new Error('Invalid file type. Only PNG and JPG are allowed.');
-      }
       
-  
       const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
         method: 'POST',
         body: formData,
