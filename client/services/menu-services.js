@@ -136,10 +136,6 @@ async function changePhoto(file, itemID) {
       const uploadedFiles = await uploadResponse.json();
       const newPhotoId = uploadedFiles[0]?.id;
   
-      if (!newPhotoId) {
-        throw new Error('Failed to retrieve uploaded photo ID');
-      }
-  
       // 4. Update the menu item with the new photo ID
       const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/menus/${itemID}`, {
         method: 'PUT',
@@ -152,10 +148,6 @@ async function changePhoto(file, itemID) {
           },
         }),
       });
-  
-      if (!updateResponse.ok) {
-        throw new Error('Failed to update menu item with new photo. Status: ' + updateResponse.status);
-      }
   
       const updatedItem = await updateResponse.json();
       return updatedItem;

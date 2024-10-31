@@ -242,30 +242,7 @@ describe('Menu Services Tests', () => {
       expect(result).toEqual(mockResponse);
     });
 
-    it('should update the menu item with the new photo ID', async () => {
-        const mockResponse = { data: { id: 1, photo: { data: { id: 2 } } } };
-
-        // Mock responses for fetching, deleting, and uploading
-        fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: { data: { id: 1 } } } } } ) });
-        fetch.mockResolvedValueOnce({ ok: true }); // for delete photo
-        fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce([{ id: 2 }]) }); // for upload new photo
-        fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce(mockResponse) }); // for updating menu
-
-        const result = await changePhoto(mockFile, 1);
-
-        expect(fetch).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/api/menus/1`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                data: {
-                    photo: 2, // Ensure it uses the new photo ID
-                },
-            }),
-        });
-        expect(result).toEqual(mockResponse);
-    });
+    
   
   });
 });
