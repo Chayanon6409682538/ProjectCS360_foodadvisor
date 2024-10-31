@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [16.x, 18.x]
     runs-on: ${{ matrix.os }}
     # env:
     #   HOST: '0.0.0.0'
@@ -31,12 +31,6 @@ jobs:
     steps:
     - name: Check code
       uses: actions/checkout@v4
-
-    - name: Install build tools
-        run:
-          sudo yum update
-          sudo yum install -y build-essential python3
-
 
     - name: Setup node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
