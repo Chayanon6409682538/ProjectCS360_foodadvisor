@@ -237,5 +237,77 @@ export async function deleteMenu(menuID) {
   }
 }
 
+export async function changePhoto(file, itemID) {
+  try {
+    // 1. Retrieve the current menu item to check for an existing photo
+    const getItemResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/menus/${itemID}?populate=photo`);
+    if (!getItemResponse.ok) {
+      throw new Error('Failed to retrieve menu item. Status: ' + getItemResponse.status);
+    }
+
+    const itemData = await getItemResponse.json();
+    const existingPhotoId = itemData.data?.attributes?.photo?.data?.id;
+
+    // 2. Delete the old photo if it exists
+    if (existingPhotoId) {
+      const deletePhotoResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/files/${existingPhotoId}`, {
+        method: 'DELETE',
+      });
+      if (!deletePhotoResponse.ok) {
+        throw new Error('Failed to delete old photo. Status: ' + deletePhotoResponse.status);
+      }
+    }
+
+    // 3. Upload the new photo
+    const formData = new FormData();
+    formData.append('files', file);
+
+    const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error('Failed to upload new photo. Status: ' + uploadResponse.status);
+    }
+
+    const uploadedFiles = await uploadResponse.json();
+    const newPhotoId = uploadedFiles[0]?.id;
+
+    if (!newPhotoId) {
+      throw new Error('Failed to retrieve uploaded photo ID');
+    }
+
+    // 4. Update the menu item with the new photo ID
+    const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/menus/${itemID}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: {
+          photo: {
+            data: {
+              id: newPhotoId,
+            },
+          },
+        },
+      }),
+    });
+
+    if (!updateResponse.ok) {
+      throw new Error('Failed to update menu item with new photo. Status: ' + updateResponse.status);
+    }
+
+    const updatedItem = await updateResponse.json();
+    return updatedItem;
+  } catch (error) {
+    console.error('Error changing photo:', error);
+    throw error; // Rethrow the error for further handling
+  }
+}
+
+
+
 
 

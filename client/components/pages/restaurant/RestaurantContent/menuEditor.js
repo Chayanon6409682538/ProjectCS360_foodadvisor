@@ -1,7 +1,13 @@
-import React from 'react';
-import { getStrapiMedia, createMenu, connectRelation, updateMenu, deleteMenu } from '../../../../utils/index';
+import {React, useState, useRef} from 'react';
+import { getStrapiMedia, 
+         createMenu, 
+         connectRelation, 
+         updateMenu, 
+         deleteMenu, 
+          } from '../../../../utils/index';
 
 const MenuEditor = ({ items, onEdit, restaurantId }) => {
+  const [selectedPhotos, setSelectedPhotos] = useState({});
 
   const handleAddNewItem = () => {
     const newMenuItem = {
@@ -69,7 +75,6 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
       });
   };
   
-
   const onDelete = (index) => {
     const itemToDelete = items[index];
     const itemId = itemToDelete.id;
@@ -84,7 +89,6 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
       });
   };
   
-
   const handleAvailabilityChange = (index, isAvailable) => {
     onEdit((prevItems) => {
       const updatedItems = [...prevItems];
@@ -92,6 +96,29 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
       return updatedItems;
     });
   };
+
+  const handlePhotoChange = (index, file) => {
+    const photoUrl = URL.createObjectURL(file);
+    setSelectedPhotos((prev) => ({
+      ...prev,
+      [index]: photoUrl,
+    }));
+  };
+
+  const handleChangePhoto = (index) => {
+    document.getElementById(`file-input-${index}`).click();
+  };
+
+  const handleFileChange = (index) => (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      handlePhotoChange(index, file);
+    }
+  };
+
+  
+
+  
 
   return (
     <div className="overflow-x-auto mt-6">
@@ -112,19 +139,28 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
           <tbody>
             {items.map((item, index) => {
               const { attributes } = item;
-              const photoUrl = attributes.photo?.data
-                ? getStrapiMedia(attributes.photo.data.attributes.url)
-                : 'default-image-url';
-
+              const photoUrl =
+                selectedPhotos[index] ||
+                (attributes.photo?.data
+                  ? getStrapiMedia(attributes.photo.data.attributes.url)
+                  : 'default-image-url');
+                  
               return (
                 <tr key={index} className="border-b border-gray-200">
                   <td className="py-4 px-5">
                     <button
-                      onClick={() => updatePhoto(item)} // Assuming updatePhoto is defined elsewhere
+                      onClick={() => handleChangePhoto(index)}
                       className="py-2 px-4 bg-secondary text-white font-semibold rounded-md"
                     >
                       Change Photo
                     </button>
+                    <input
+                      type="file"
+                      id={`file-input-${index}`}
+                      accept="image/*"
+                      onChange={handleFileChange(index)}
+                      style={{ display: 'none' }}
+                    />
                   </td>
                   <td className="py-4 px-5">
                     <img
@@ -217,7 +253,7 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
         </div>
       )}
     </div>
-  );  
+  );
 };
 
 export default MenuEditor;
