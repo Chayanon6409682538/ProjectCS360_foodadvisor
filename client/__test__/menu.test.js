@@ -108,7 +108,10 @@ describe('Menu Services Tests', () => {
     });
 
     it('should throw an error when connection fails', async () => {
-      fetch.mockResolvedValueOnce({ ok: false });
+      fetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: "Some error details" }), // Mock json method
+    });
 
       await expect(connectRelation(1, 1)).rejects.toThrow('Failed to connect relation');
     });
