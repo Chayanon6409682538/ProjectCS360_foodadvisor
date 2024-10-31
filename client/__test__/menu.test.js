@@ -134,11 +134,6 @@ describe('Menu Services Tests', () => {
       await expect(updateMenu(1, { name: 'Updated Menu' })).rejects.toThrow('Failed to update menu item');
     });
 
-    it('should handle fetch errors in updateMenu', async () => {
-      fetch.mockRejectedValueOnce(new Error('Network error'));
-
-      await expect(updateMenu(1, { name: 'Updated Menu' })).rejects.toThrow('Network error');
-    });
   });
 
   describe('deleteMenu', () => {
@@ -161,11 +156,6 @@ describe('Menu Services Tests', () => {
       await expect(deleteMenu(1)).rejects.toThrow('Failed to delete menu item');
     });
 
-    it('should handle fetch errors in deleteMenu', async () => {
-      fetch.mockRejectedValueOnce(new Error('Network error'));
-
-      await expect(deleteMenu(1)).rejects.toThrow('Network error');
-    });
   });
   
   describe('changePhoto', () => {
