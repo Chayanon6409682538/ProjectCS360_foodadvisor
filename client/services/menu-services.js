@@ -121,7 +121,9 @@ async function changePhoto(file, itemID) {
       // 3. Upload the new photo
       const formData = new FormData();
       formData.append('files', file);
+  
       
+  
       const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
         method: 'POST',
         body: formData,

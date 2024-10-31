@@ -102,7 +102,11 @@ describe('Menu Services Tests', () => {
       expect(fetch).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/api/restaurants/1`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: { menus: { connect: [1] } } }),
+        body: JSON.stringify({ data: 
+                              { menus: 
+                                { connect: [1] } 
+                              } 
+                            }),
       });
       expect(result).toEqual(mockResponse);
     });
@@ -125,7 +129,7 @@ describe('Menu Services Tests', () => {
 
   describe('updateMenu', () => {
     it('should update a menu item and return it', async () => {
-      const mockResponse = { data: { id: 1, name: 'Updated Menu' } };
+      const mockResponse = { data: { id: 1, name: 'Not Updated Menu' } };
       fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce(mockResponse) });
 
       const result = await updateMenu(1, { name: 'Updated Menu' });
@@ -177,8 +181,6 @@ describe('Menu Services Tests', () => {
       await expect(deleteMenu(1)).rejects.toThrow('Network error');
     });
   });
-
-  const mockFile = new File([""], "photo.jpg", { type: "image/jpeg" }); // Mock image file
   
   describe('changePhoto', () => {
     const mockFile = new File([''], 'photo.jpg', { type: 'image/jpeg' });
@@ -220,39 +222,50 @@ describe('Menu Services Tests', () => {
       await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to upload new photo. Status: undefined');
     });
 
-    it('should handle the case where there is no existing photo', async () => {
-      const mockResponse = { data: { attributes: { photo: { id: 2, url: "new-photo-url.jpg" } } } };
-
-      // Mocking responses for each stage of the process
-      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: null } } }) }); // Check existing photo
-      fetch.mockResolvedValueOnce({ ok: true }); // Deleting old photo step (skipped as photo is null)
-      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce([{ id: 2 }]) }); // Uploading new photo
-      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce(mockResponse) }); // Updating menu item with new photo
-
-      const result = await changePhoto(mockFile, 1);
-      expect(result).toEqual(mockResponse);
-    });
 
     it('should handle the case where there is no existing photo', async () => {
+      const mockFile = {}; // Replace with actual file mock if needed
       const mockResponse = { data: { attributes: { photo: { id: 2, url: "new-photo-url.jpg" } } } };
-
-      // Mocking responses for each stage of the process
-      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: null } } }) }); // Check existing photo
-      fetch.mockResolvedValueOnce({ ok: true }); // Deleting old photo step (skipped as photo is null)
-      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce([{ id: 2 }]) }); // Uploading new photo
-      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce(mockResponse) }); // Updating menu item with new photo
-
-      const result = await changePhoto(mockFile, 1);
-      expect(result).toEqual(mockResponse);
-    });
-
-    it('should throw an error if the new photo upload fails', async () => {
-      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: { data: { id: 1 } } } } }) }); // Existing photo
-      fetch.mockResolvedValueOnce({ ok: true }); // Delete old photo
-      fetch.mockResolvedValueOnce({ ok: false, json: jest.fn() }); // Failed upload
-      
-      await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to retrieve uploaded photo ID'); // Matching current error message
-    });
     
+      // 1. Check for an existing photo and return null (indicating no existing photo)
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: null } } }) });
+    
+      // 2. No deletion of old photo since there is no existing photo
+      // 3. Mock successful upload response for the new photo
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce([{ id: 2 }]) });
+    
+      // 4. Mock response for updating the menu item with the new photo
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce(mockResponse) });
+    
+      // Run the function and verify it returns the expected result
+      const result = await changePhoto(mockFile, 1);
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should update the menu item with the new photo ID', async () => {
+        const mockResponse = { data: { id: 1, photo: { data: { id: 2 } } } };
+
+        // Mock responses for fetching, deleting, and uploading
+        fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: { data: { id: 1 } } } } } ) });
+        fetch.mockResolvedValueOnce({ ok: true }); // for delete photo
+        fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce([{ id: 2 }]) }); // for upload new photo
+        fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce(mockResponse) }); // for updating menu
+
+        const result = await changePhoto(mockFile, 1);
+
+        expect(fetch).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/api/menus/1`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                data: {
+                    photo: 2, // Ensure it uses the new photo ID
+                },
+            }),
+        });
+        expect(result).toEqual(mockResponse);
+    });
+  
   });
 });
