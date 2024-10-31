@@ -36,7 +36,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies in api
-      run: npm install -g yarn
+      run: yarn install
       working-directory: ./api
 
     - name: Build project  
@@ -44,7 +44,7 @@ jobs:
       working-directory: ./api
 
     - name: Install dependencies in client
-      run: npm install -g yarn
+      run: yarn install
       working-directory: ./client
 
     - name: Test unit test client
