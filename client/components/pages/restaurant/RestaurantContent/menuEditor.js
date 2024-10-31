@@ -1,5 +1,5 @@
 import React from 'react';
-import { getStrapiMedia, createMenu, connectRelation, updateMenu } from '../../../../utils/index';
+import { getStrapiMedia, createMenu, connectRelation, updateMenu, deleteMenu } from '../../../../utils/index';
 
 const MenuEditor = ({ items, onEdit, restaurantId }) => {
 
@@ -21,18 +21,18 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
     createMenu(newMenuItem)
       .then((createdMenu) => {
         console.log('Menu item created:', createdMenu);
-        const newMenuId = createdMenu.data.id; // Get the newly created menu item's ID
+        const newMenuId = createdMenu.data.id;
         onEdit((prevItems) => [
           ...prevItems,
           {
             ...createdMenu.data,
             attributes: {
               ...createdMenu.data.attributes,
-              isAvaliable: false, // Ensure isAvaliable matches your default
+              isAvaliable: false,
             },
           },
         ]);
-        return connectRelation(newMenuId, restaurantId); // Pass the correct IDs
+        return connectRelation(newMenuId, restaurantId);
       })
       .then((connectRelation) => {
         console.log('Relation connected:', connectRelation);
@@ -71,11 +71,21 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
   
 
   const onDelete = (index) => {
-    onEdit((prevItems) => prevItems.filter((_, i) => i !== index));
+    const itemToDelete = items[index];
+    const itemId = itemToDelete.id;
+  
+    deleteMenu(itemId)
+      .then(() => {
+        onEdit((prevItems) => prevItems.filter((_, i) => i !== index));
+        console.log(`Menu item with ID ${itemId} deleted successfully`);
+      })
+      .catch((error) => {
+        console.error('Error deleting menu item:', error);
+      });
   };
+  
 
   const handleAvailabilityChange = (index, isAvailable) => {
-    // Update the isAvaliable status in the items state
     onEdit((prevItems) => {
       const updatedItems = [...prevItems];
       updatedItems[index].attributes.isAvaliable = isAvailable;

@@ -216,4 +216,26 @@ export async function updateMenu(menuID, items) {
   }
 }
 
+export async function deleteMenu(menuID) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/menus/${menuID}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete menu item');
+    }
+
+    const deletedMenu = await response.json();
+    return deletedMenu;
+  } catch (error) {
+    console.error('Error deleting menu:', error);
+    throw error;
+  }
+}
+
+
 
