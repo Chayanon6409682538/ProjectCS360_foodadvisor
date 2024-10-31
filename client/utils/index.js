@@ -238,9 +238,12 @@ export async function deleteMenu(menuID) {
 }
 
 export async function changePhoto(file, itemID) {
+  console.log('File to upload:', file);
+
   try {
     // 1. Retrieve the current menu item to check for an existing photo
     const getItemResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/menus/${itemID}?populate=photo`);
+
     if (!getItemResponse.ok) {
       throw new Error('Failed to retrieve menu item. Status: ' + getItemResponse.status);
     }
@@ -250,9 +253,10 @@ export async function changePhoto(file, itemID) {
 
     // 2. Delete the old photo if it exists
     if (existingPhotoId) {
-      const deletePhotoResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/files/${existingPhotoId}`, {
+      const deletePhotoResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload/files/${existingPhotoId}`, {
         method: 'DELETE',
       });
+
       if (!deletePhotoResponse.ok) {
         throw new Error('Failed to delete old photo. Status: ' + deletePhotoResponse.status);
       }
@@ -262,7 +266,12 @@ export async function changePhoto(file, itemID) {
     const formData = new FormData();
     formData.append('files', file);
 
-    const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
+    if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
+      throw new Error('Invalid file type. Only PNG and JPG are allowed.');
+    }
+    
+
+    const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
       method: 'POST',
       body: formData,
     });
@@ -286,11 +295,7 @@ export async function changePhoto(file, itemID) {
       },
       body: JSON.stringify({
         data: {
-          photo: {
-            data: {
-              id: newPhotoId,
-            },
-          },
+          photo: newPhotoId, // Use newPhotoId directly
         },
       }),
     });
@@ -301,11 +306,15 @@ export async function changePhoto(file, itemID) {
 
     const updatedItem = await updateResponse.json();
     return updatedItem;
+
   } catch (error) {
     console.error('Error changing photo:', error);
-    throw error; // Rethrow the error for further handling
+    throw error;
   }
 }
+
+
+
 
 
 

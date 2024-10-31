@@ -3,7 +3,8 @@ import { getStrapiMedia,
          createMenu, 
          connectRelation, 
          updateMenu, 
-         deleteMenu, 
+         deleteMenu,
+         changePhoto  
           } from '../../../../utils/index';
 
 const MenuEditor = ({ items, onEdit, restaurantId }) => {
@@ -48,7 +49,7 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
       });
   };
 
-  const updateDetail = (item, index) => {
+  const updateDetail = async (item, index, file) => {
     const updatedItem = {
       data: {
         name: document.getElementById(`name-${index}`).value,
@@ -57,10 +58,31 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
         isAvaliable: document.getElementById(`availability-${index}`).value === 'true',
       },
     };
-  
-    updateMenu(item.id, updatedItem)
-      .then((updatedData) => {
-        console.log('Menu item updated:', updatedData);
+
+    try {
+      // Update menu item details without photo upload
+      const updatedData = await updateMenu(item.id, updatedItem);
+      console.log('Menu item updated:', updatedData);
+
+      // If a file is provided, call changePhoto to update the photo
+      if (file) {
+        const updatedPhotoData = await changePhoto(file, item.id);
+        console.log('Photo updated:', updatedPhotoData);
+
+        // Update the local state to reflect changes, including the new photo
+        onEdit((prevItems) => {
+          const updatedItems = [...prevItems];
+          updatedItems[index] = {
+            ...updatedItems[index],
+            attributes: {
+              ...updatedData.data.attributes,
+              photo: updatedPhotoData.data.attributes.photo, // Update the photo attribute
+            },
+          };
+          return updatedItems;
+        });
+      } else {
+        // Update the local state without changing the photo
         onEdit((prevItems) => {
           const updatedItems = [...prevItems];
           updatedItems[index] = {
@@ -69,10 +91,10 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
           };
           return updatedItems;
         });
-      })
-      .catch((error) => {
-        console.error('Error updating item:', error);
-      });
+      }
+    } catch (error) {
+      console.error('Error updating item:', error);
+    }
   };
   
   const onDelete = (index) => {
@@ -98,10 +120,9 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
   };
 
   const handlePhotoChange = (index, file) => {
-    const photoUrl = URL.createObjectURL(file);
     setSelectedPhotos((prev) => ({
       ...prev,
-      [index]: photoUrl,
+      [index]: file, // Store the actual file object
     }));
   };
 
@@ -112,12 +133,10 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
   const handleFileChange = (index) => (event) => {
     const file = event.target.files[0];
     if (file) {
-      handlePhotoChange(index, file);
+      console.log('Selected file:', file); // Log the file object
+      handlePhotoChange(index, file); // Store the file object
     }
   };
-
-  
-
   
 
   return (
@@ -144,7 +163,7 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
                 (attributes.photo?.data
                   ? getStrapiMedia(attributes.photo.data.attributes.url)
                   : 'default-image-url');
-                  
+
               return (
                 <tr key={index} className="border-b border-gray-200">
                   <td className="py-4 px-5">
@@ -211,12 +230,12 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
                     </select>
                   </td>
                   <td className="py-4 px-5">
-                    <button
-                      onClick={() => updateDetail(item, index)}
-                      className="py-2 px-4 bg-secondary text-white font-semibold rounded-md"
-                    >
-                      Update
-                    </button>
+                  <button
+                    onClick={() => updateDetail(item, index, selectedPhotos[index])}
+                    className="py-2 px-4 bg-secondary text-white font-semibold rounded-md"
+                  >
+                    Update
+                  </button>
                   </td>
                   <td className="py-4 px-5">
                     <button
