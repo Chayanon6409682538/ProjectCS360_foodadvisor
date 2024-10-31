@@ -11,7 +11,20 @@ describe('Unit Tests for createMenu Function', () => {
   });
 
   it('should create a menu item and return it', async () => {
-    const mockResponse = { id: 1, name: 'Pizza', price: 10 };
+    const mockResponse = {
+      data: {
+        id: 1,
+        name: 'New Menu',
+        price: 0.00,
+        type: 'Main Menu',
+        isAvailable: false, // Correcting the typo from 'isAvaliable' to 'isAvailable'
+        photo: {
+          data: {
+            id: 1 // Assuming the photo already exists in your Strapi media library
+          }
+        }
+      }
+    };
 
     // Mocking fetch response
     fetch.mockResolvedValueOnce({
@@ -19,7 +32,18 @@ describe('Unit Tests for createMenu Function', () => {
       json: jest.fn().mockResolvedValueOnce(mockResponse),
     });
 
-    const params = { name: 'Pizza', price: 10 };
+    const params = {
+      name: 'New Menu',
+      price: 0.00,
+      type: 'Main Menu',
+      isAvailable: false, // Correcting the typo here too
+      photo: {
+        data: {
+          id: 1 // Mocking the existing photo ID
+        }
+      }
+    };
+    
     const result = await createMenu(params);
 
     expect(fetch).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/api/menus`, {
