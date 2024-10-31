@@ -15,18 +15,6 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         node-version: [16.x, 18.x]
     runs-on: ${{ matrix.os }}
-    # env:
-    #   HOST: '0.0.0.0'
-    #   PORT: '1337'
-    #   APP_KEYS: 'mock'
-    #   API_TOKEN_SALT: 'mock'
-    #   #TRANSFER_TOKEN_SALT: 'mock'
-    #   #DATABASE_CLIENT: 'sqlite'
-    #   #DATABASE_FILENAME: '.tmp/data.db'
-    #   JWT_SECRET: ${{ secrets.JWT_SECRET }}
-    #   ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
-    #   STRAPI_ADMIN_CLIENT_PREVIEW_SECRET: ${{ secrets.STRAPI_ADMIN_CLIENT_PREVIEW_SECRET }}
-
 
     steps:
     - name: Check code
