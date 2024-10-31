@@ -202,14 +202,14 @@ describe('Menu Services Tests', () => {
     it('should throw an error when retrieval fails', async () => {
       fetch.mockResolvedValueOnce({ ok: false });
 
-      await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to retrieve menu item. Status: NaN');
+      await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to retrieve menu item. Status: undefined');
     });
 
     it('should throw an error when deletion of old photo fails', async () => {
       fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: { data: { id: 1 } } } } }) });
       fetch.mockResolvedValueOnce({ ok: false });
 
-      await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to delete old photo. Status: NaN');
+      await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to delete old photo. Status: undefined');
     });
 
     it('should throw an error when upload fails', async () => {
@@ -217,7 +217,7 @@ describe('Menu Services Tests', () => {
       fetch.mockResolvedValueOnce({ ok: true });
       fetch.mockResolvedValueOnce({ ok: false });
 
-      await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to upload new photo. Status: NaN');
+      await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to upload new photo. Status: undefined');
     });
   });
 });
