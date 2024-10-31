@@ -219,5 +219,25 @@ describe('Menu Services Tests', () => {
 
       await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to upload new photo. Status: undefined');
     });
+
+    it('should handle the case where there is no existing photo', async () => {
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: null } } }) });
+      fetch.mockResolvedValueOnce({ ok: true });
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce([{ id: 2 }]) });
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce(mockResponse) });
+      
+      const result = await changePhoto(mockFile, 1);
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should throw an error if the new photo upload fails', async () => {
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: { data: { id: 1 } } } } }) });
+      fetch.mockResolvedValueOnce({ ok: true });
+      fetch.mockResolvedValueOnce({ ok: false }); // Simulate failed upload
+    
+      await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to upload new photo');
+    });
+    
+    
   });
 });
