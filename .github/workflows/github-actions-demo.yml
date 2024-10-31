@@ -44,7 +44,7 @@ jobs:
       working-directory: ./api
 
     - name: Install dependencies in client
-      run: yarn install
+      run: npm install -g yarn
       working-directory: ./client
 
     - name: Test unit test client
