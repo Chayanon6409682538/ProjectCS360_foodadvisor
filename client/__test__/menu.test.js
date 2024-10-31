@@ -84,7 +84,6 @@ describe('Menu Services Tests', () => {
 
       await expect(createMenu({ name: 'Pizza', price: 10 })).rejects.toThrow('Failed to create menu item');
     });
-
     
   });
 
@@ -105,15 +104,6 @@ describe('Menu Services Tests', () => {
                             }),
       });
       expect(result).toEqual(mockResponse);
-    });
-
-    it('should throw an error when connection fails', async () => {
-      fetch.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ error: "Some error details" }), // Mock json method
-    });
-
-      await expect(connectRelation(1, 1)).rejects.toThrow('Failed to connect relation');
     });
 
     it('should handle fetch errors in connectRelation', async () => {

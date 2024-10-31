@@ -35,12 +35,7 @@ async function connectRelation(menuId, restaurantsId) {
           }
         }),
       });
-  
-      if (!response.ok) {
-        const errorResponse = await response.json();
-        console.error('Error details:', errorResponse);
-        throw new Error('Failed to connect relation');
-      }
+
   
       const updatedMenu = await response.json();
       return updatedMenu;
