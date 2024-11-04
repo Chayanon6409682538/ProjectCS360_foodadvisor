@@ -271,6 +271,424 @@ After install git, follow these steps:
 
             ./install_strapi_foodadvisor.sh
 
+## Unit and Integration Testing Overview
+In the FoodAdvisor project, which is a food menu application using Strapi for the backend and Next.js for the frontend.
+
+- Testing Tools
+
+    - Jest: For both Unit and Integration Testing, to validate functions and module interactions.
+
+    - Supertest: For validating API endpoints.
+
+    - Strapi Testing Utils: For streamlining testing of the Strapi backend APIs.
+
+
+## Setting Up Tests
+### Step by step:
+1. Install Testing Dependencies by running
+
+        yarn add jest supertest --save-dev
+
+2. Setup package.json
+
+        add "test": "jest --coverage 2>&1" to script in package.json
+
+
+## Running Tests
+### Step by step:
+1. Navigate to your `./foodadvisor/client` folder by running
+
+        cd client 
+
+    from your command line. 
+
+2. Install dependencies by running
+
+        yarn
+
+3. To run all Unit and Integration tests across both frontend and backend components, use the following command below
+
+        yarn test
+
+
+
+## Test File Structure
+
+### clien test
+
+    client/
+    ├── _tests_/                      
+    │   ├── menu.test.js/ 
+
+
+## Test Coverage
+### 1. Create Menu Function
+    describe('createMenu', () => {
+    it('should create a menu item and return it', async () => {
+      const mockResponse = {
+        data: {
+          id: 1,
+          name: 'New Menu',
+          price: 0.00,
+          type: 'Main Menu',
+          isAvailable: false,
+          photo: {
+            data: {
+              id: 1,
+            },
+          },
+        },
+      };
+
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValueOnce(mockResponse),
+      });
+
+      const params = {
+        name: 'New Menu',
+        price: 0.00,
+        type: 'Main Menu',
+        isAvailable: false,
+        photo: {
+          data: {
+            id: 1,
+          },
+        },
+      };
+
+      const result = await createMenu(params);
+
+      expect(fetch).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/api/menus`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should throw an error when the response is not ok', async () => {
+      fetch.mockResolvedValueOnce({ ok: false });
+
+      await expect(createMenu({ name: 'Pizza', price: 10 })).rejects.toThrow('Failed to create menu item');
+    });
+    
+    });
+
+
+### 2. Connect Relation Function
+
+    describe('connectRelation', () => {
+    it('should connect menu to restaurant and return updated menu', async () => {
+      const mockResponse = { data: { id: 1, name: 'Pizza' } };
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce(mockResponse) });
+
+      const result = await connectRelation(1, 1);
+
+      expect(fetch).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/api/restaurants/1`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: 
+                              { menus: 
+                                { connect: [1] } 
+                              } 
+                            }),
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle fetch errors in connectRelation', async () => {
+      fetch.mockRejectedValueOnce(new Error('Network error'));
+
+      await expect(connectRelation(1, 1)).rejects.toThrow('Network error');
+    });
+    });
+
+
+### 3. Update Menu Function
+
+    describe('updateMenu', () => {
+    it('should update a menu item and return it', async () => {
+      const mockResponse = { data: { id: 1, name: 'Not Updated Menu' } };
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce(mockResponse) });
+
+      const result = await updateMenu(1, { name: 'Updated Menu' });
+
+      expect(fetch).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/api/menus/1`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Updated Menu' }),
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should throw an error when updating fails', async () => {
+      fetch.mockResolvedValueOnce({ ok: false });
+
+      await expect(updateMenu(1, { name: 'Updated Menu' })).rejects.toThrow('Failed to update menu item');
+    });
+
+    });
+
+### 4. Delete Menu Function
+
+    describe('deleteMenu', () => {
+    it('should delete a menu item and return it', async () => {
+      const mockResponse = { data: { id: 1 } };
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce(mockResponse) });
+
+      const result = await deleteMenu(1);
+
+      expect(fetch).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/api/menus/1`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should throw an error when deletion fails', async () => {
+      fetch.mockResolvedValueOnce({ ok: false });
+
+      await expect(deleteMenu(1)).rejects.toThrow('Failed to delete menu item');
+    });
+
+  });
+
+### 5. Change Photo Function
+
+    describe('changePhoto', () => {
+    const mockFile = new File([''], 'photo.jpg', { type: 'image/jpeg' });
+
+    it('should upload a new photo and update the menu item', async () => {
+      const mockResponse = { data: { id: 1, photo: { data: { id: 2 } } } };
+      
+      // Mock responses for fetching, deleting, and uploading
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: { data: { id: 1 } } } } } ) });
+      fetch.mockResolvedValueOnce({ ok: true }); // for delete photo
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce([{ id: 2 }]) }); // for upload new photo
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce(mockResponse) }); // for updating menu
+
+      const result = await changePhoto(mockFile, 1);
+
+      expect(fetch).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/api/menus/1?populate=photo`);
+      expect(fetch).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, expect.any(Object));
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should throw an error when retrieval fails', async () => {
+      fetch.mockResolvedValueOnce({ ok: false });
+
+      await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to retrieve menu item. Status: undefined');
+    });
+
+    it('should throw an error when deletion of old photo fails', async () => {
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: { data: { id: 1 } } } } }) });
+      fetch.mockResolvedValueOnce({ ok: false });
+
+      await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to delete old photo. Status: undefined');
+    });
+
+    it('should throw an error when upload fails', async () => {
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: { data: { id: 1 } } } } }) });
+      fetch.mockResolvedValueOnce({ ok: true });
+      fetch.mockResolvedValueOnce({ ok: false });
+
+      await expect(changePhoto(mockFile, 1)).rejects.toThrow('Failed to upload new photo. Status: undefined');
+    });
+
+
+    it('should handle the case where there is no existing photo', async () => {
+      const mockFile = {}; // Replace with actual file mock if needed
+      const mockResponse = { data: { attributes: { photo: { id: 2, url: "new-photo-url.jpg" } } } };
+    
+      // 1. Check for an existing photo and return null (indicating no existing photo)
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce({ data: { attributes: { photo: null } } }) });
+    
+      // 2. No deletion of old photo since there is no existing photo
+      // 3. Mock successful upload response for the new photo
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce([{ id: 2 }]) });
+    
+      // 4. Mock response for updating the menu item with the new photo
+      fetch.mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValueOnce(mockResponse) });
+    
+      // Run the function and verify it returns the expected result
+      const result = await changePhoto(mockFile, 1);
+      expect(result).toEqual(mockResponse);
+    });
+  
+
+## Viewing Test Results 
+This is the test result:
+
+        Menu Services Tests
+    createMenu                                                                                                                                                   
+      √ should create a menu item and return it (3 ms)                                                                                                           
+      √ should throw an error when the response is not ok (19 ms)                                                                                                
+    connectRelation                                                                                                                                              
+      √ should connect menu to restaurant and return updated menu (2 ms)                                                                                         
+      √ should handle fetch errors in connectRelation (3 ms)                                                                                                     
+    updateMenu                                                                                                                                                   
+      √ should update a menu item and return it (2 ms)                                                                                                           
+      √ should throw an error when updating fails (1 ms)                                                                                                         
+    deleteMenu                                                                                                                                                   
+      √ should delete a menu item and return it (1 ms)                                                                                                           
+      √ should throw an error when deletion fails (1 ms)                                                                                                         
+    changePhoto                                                                                                                                                  
+      √ should upload a new photo and update the menu item (40 ms)
+      √ should throw an error when retrieval fails (5 ms)                                                                                                        
+      √ should throw an error when deletion of old photo fails (8 ms)                                                                                            
+      √ should throw an error when upload fails (7 ms)                                                                                                           
+      √ should handle the case where there is no existing photo (5 ms)                                                                                                                                                                                                                                                  
+    ------------------|---------|----------|---------|---------|-------------------                                                                                  
+    File              | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                   
+    ------------------|---------|----------|---------|---------|-------------------
+    All files         |     100 |      100 |     100 |     100 | 
+    menu-services.js  |     100 |      100 |     100 |     100 | 
+    ------------------|---------|----------|---------|---------|-------------------
+    Test Suites: 1 passed, 1 total
+    Tests:       13 passed, 13 total
+    Snapshots:   0 total
+    Time:        7.556 s
+    Ran all test suites.
+    Done in 21.85s.
+
+## Adding New Tests
+
+
+Create new files in `_tests_` and following this pattern:
+
+    // xxxx.test.js
+    describe('Feature Name', () => {
+        it('should do something specific', () => {
+            // Test implementation
+        });
+    });
+
+
+# Node.js CI Workflow
+
+
+## Workflow Triggers
+The workflow is triggered on:
+
+- Push events to `master` and `dev` branches
+
+- Pull request events to `master` and `dev` branches
+
+
+## CI Environment Matrix
+The workflow runs tests across the following combinations:
+
+#### Operating Systems
+- ubuntu-latest
+- macos-latest
+
+#### Node.js Versions
+- 16.x
+- 18.x
+
+## Workflow Steps:
+1. Check code
+
+        clone repository uses: actions/checkout@v4
+
+2. Setup node.js
+
+        uses: actions/setup-node@v4
+        with:
+            node-version: ${{ matrix.node-version }}
+
+3. Install yarn
+
+        run: npm install -g yarn
+
+
+4. Install dependencies in api
+      
+        run: yarn
+        working-directory: ./api
+
+
+5. Build project 
+
+        run: yarn build
+        working-directory: ./api
+
+
+6. Install dependencies in client
+
+        run: yarn
+        working-directory: ./client
+
+7. Test unit test client
+
+        run:
+            yarn test   
+        working-directory: ./client
+
+
+## Visualize Test Results in GitHub Actions
+1. Go to `Action` page.
+2. Selected latest workflows.
+3. Selected passed job.
+4. Selected test unit and test client.
+
+After completed, these steps will show the test results.
+
+## GitHub Actions Configuration
+This workflow uses the following configuration `(YAML file)`:
+
+    name: Github Actions Workflow
+
+    on: 
+    push:
+        branches: [master, dev ]
+    pull_request:
+        branches: [ master, dev ]
+
+    jobs:
+    build:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, redhat-lastest]
+        node-version: [16.x]
+    runs-on: ${{ matrix.os }}
+    env:
+      HOST: '0.0.0.0'
+      PORT: '1337'
+      APP_KEYS: 'mock'
+      API_TOKEN_SALT: 'mock'
+      #TRANSFER_TOKEN_SALT: 'mock'
+      #DATABASE_CLIENT: 'sqlite'
+      #DATABASE_FILENAME: '.tmp/data.db'
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
+      STRAPI_ADMIN_CLIENT_PREVIEW_SECRET: ${{ secrets.STRAPI_ADMIN_CLIENT_PREVIEW_SECRET }}
+
+
+    steps:
+    - name: Check code
+      uses: actions/checkout@v4
+    - name: Setup node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install dependencies
+      run: yarn install
+      working-directory: ./api
+
+    - name: Build project  
+      run: yarn build
+      working-directory: ./api
+
+    - name: Test  
+      run: 
+        yarn test
+        echo "my STRAPI_ADMIN_CLIENT_PREVIEW_SECRET is ${{ secrets.STRAPI_ADMIN_CLIENT_PREVIEW_SECRET }}"
+      working-directory: ./api
+
+
 ## 📷 Project Screenshot
 
 ![Project Screenshot](image1.png)
