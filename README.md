@@ -271,7 +271,7 @@ After install git, follow these steps:
 
             ./install_strapi_foodadvisor.sh
 
-## Unit and Integration Testing Overview
+## 📄 Unit and Integration Testing Overview
 In the FoodAdvisor project, which is a food menu application using Strapi for the backend and Next.js for the frontend.
 
 - Testing Tools
@@ -283,7 +283,7 @@ In the FoodAdvisor project, which is a food menu application using Strapi for th
     - Strapi Testing Utils: For streamlining testing of the Strapi backend APIs.
 
 
-## Setting Up Tests
+## 💻 Setting Up Tests
 ### Step by step:
 1. Install Testing Dependencies by running
 
@@ -294,7 +294,7 @@ In the FoodAdvisor project, which is a food menu application using Strapi for th
         add "test": "jest --coverage 2>&1" to script in package.json
 
 
-## Running Tests
+## 🏃‍♂️ Running Tests
 ### Step by step:
 1. Navigate to your `./foodadvisor/client` folder by running
 
@@ -312,7 +312,7 @@ In the FoodAdvisor project, which is a food menu application using Strapi for th
 
 
 
-## Test File Structure
+## 🔌 Test File Structure
 
 ### clien test
 
@@ -321,7 +321,7 @@ In the FoodAdvisor project, which is a food menu application using Strapi for th
     │   ├── menu.test.js/ 
 
 
-## Test Coverage
+## 🏷️ Test Coverage
 ### 1. Create Menu Function
     describe('createMenu', () => {
     it('should create a menu item and return it', async () => {
@@ -517,7 +517,7 @@ In the FoodAdvisor project, which is a food menu application using Strapi for th
     });
   
 
-## Viewing Test Results 
+## 🔍 Viewing Test Results 
 This is the test result:
 
         Menu Services Tests
@@ -552,7 +552,7 @@ This is the test result:
     Ran all test suites.
     Done in 21.85s.
 
-## Adding New Tests
+## 🖇️ Adding New Tests
 
 
 Create new files in `_tests_` and following this pattern:
@@ -568,7 +568,7 @@ Create new files in `_tests_` and following this pattern:
 # Node.js CI Workflow
 
 
-## Workflow Triggers
+## 📌 Workflow Triggers
 The workflow is triggered on:
 
 - Push events to `master` and `dev` branches
@@ -576,7 +576,7 @@ The workflow is triggered on:
 - Pull request events to `master` and `dev` branches
 
 
-## CI Environment Matrix
+## 📌 CI Environment Matrix
 The workflow runs tests across the following combinations:
 
 #### Operating Systems
@@ -587,7 +587,7 @@ The workflow runs tests across the following combinations:
 - 16.x
 - 18.x
 
-## Workflow Steps:
+## 📌 Workflow Steps:
 1. Check code
 
         clone repository uses: actions/checkout@v4
@@ -627,7 +627,7 @@ The workflow runs tests across the following combinations:
         working-directory: ./client
 
 
-## Visualize Test Results in GitHub Actions
+## 📌 Visualize Test Results in GitHub Actions
 1. Go to `Action` page.
 2. Selected latest workflows.
 3. Selected passed job.
@@ -635,7 +635,7 @@ The workflow runs tests across the following combinations:
 
 After completed, these steps will show the test results.
 
-## GitHub Actions Configuration
+## 📌 GitHub Actions Configuration
 This workflow uses the following configuration `(YAML file)`:
 
     name: Github Actions Workflow
