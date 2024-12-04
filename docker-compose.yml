@@ -1,25 +1,14 @@
-version: '3.8'
-services:
-  backend:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    ports:
-      - "1337:1337"
-    volumes:
-      - ./api:/app
-    environment:
-      - DATABASE_CLIENT=sqlite
-      - DATABASE_FILENAME=./data.db
-      - NODE_ENV=development
+version: '3.9'
 
-  frontend:
+services:
+  app:
     build:
-      context: ./client
+      context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
-    volumes:
-      - ./client:/app
+      - "1337:1337" # Backend port
     environment:
       - NODE_ENV=production
+    volumes:
+      - ./backend:/app/api
+      - ./frontend:/app/client
