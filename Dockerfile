@@ -22,7 +22,7 @@ RUN npm install
 COPY api/ ./
 
 # Copy built frontend to backend public folder
-COPY --from=frontend-build /app/client/out /app/api//public
+COPY --from=frontend-build /app/client/out /app/api/public
 
 # Stage 3: Production Image
 FROM node:16 AS production
@@ -38,8 +38,11 @@ ENV NODE_ENV=production
 # Install production dependencies only
 RUN npm install --only=production
 
-# Expose backend port
+# Expose Backend port
 EXPOSE 1337
+
+# Expose Frontend port (3000)
+EXPOSE 3000
 
 # Start the application
 CMD ["npm", "run", "start"]
