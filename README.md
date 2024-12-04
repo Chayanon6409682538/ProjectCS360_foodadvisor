@@ -65,9 +65,9 @@ The goal of the FoodAdvisor project is to create a user-friendly platform that f
 > [!NOTE]
 >- **Launch AWS EC2 Instance:**
 >    - Instance Type: t2.medium
->    - AMI: Ubuntu Server 22.04 LTS (HVM),EBS General Purpose (SSD) Volume Type
+>    - AMI: Amazon Linux 2023 AMI
 >    - Operating System: Amazon Linux
->    - Storage: 1x16 GiB gp2 Root volume
+>    - Storage: 1x16 GiB gp3 Root volume
 >
 >- **Configure Security Group Rules:**
 >      | Type           | Protocol  |  Port Range  |  Source        |
@@ -92,16 +92,15 @@ The goal of the FoodAdvisor project is to create a user-friendly platform that f
 
 4. **[Choose an Amazon Machine Image (AMI)](#Launch-AWS-EC2-Instance):**
 
-    - Select AMI you want to use.
+    - Select Amazon Linux 2023 AMI.
 
 5. **[Launch AWS EC2 Instance](#Launch-AWS-EC2-Instance):**
 
-    - Select the type of Instance you want to use.
-    - Set configurations such as the number of Instances and Network settings according to your needs.
+    - Select t2.medium .
 
 6. **[Add Storage](#Launch-AWS-EC2-Instance):**
 
-    - Choose the size of the storage you want to use.
+    - Choose 16 Gib gp3.
 
 7. (Optional) **Add Tags:** 
 
