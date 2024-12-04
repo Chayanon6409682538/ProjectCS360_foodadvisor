@@ -11,6 +11,10 @@ import ReviewSummary from "./review-summary";
 import OverallRating from "./Reviews/overall-rating";
 import Reviews from "./Reviews/reviews";
 import Stars from "./stars";
+import Menu from './menu.js';
+import defaultMenuData from '../../../data/defalutMenu.json';
+import { useEffect, useState } from "react";
+import MenuEditor from './menuEditor.js';
 
 const RestaurantContent = ({ pageData }) => {
   const reviews = delve(pageData, "attributes.reviews.data");
@@ -24,6 +28,26 @@ const RestaurantContent = ({ pageData }) => {
   const opening_hours = delve(information, "opening_hours");
   const location = delve(information, "location");
   const socialNetworks = delve(pageData, "attributes.socialNetworks");
+  const restaurantId = delve(pageData, "id");
+
+  const [menuItems, setMenuItems] = useState([]);
+  const [isMenuEditorVisible, setMenuEditorVisible] = useState(false);
+
+  useEffect(() => {
+    const fetchedMenuItems = delve(pageData, "attributes.menus.data");
+    if (fetchedMenuItems && fetchedMenuItems.length > 0) {
+      setMenuItems(fetchedMenuItems);
+    }
+  }, [pageData]);
+
+  const handleEditButtonClick = () => {
+    setMenuEditorVisible((prev) => !prev);
+  };
+
+  const handleEditItems = (updatedItems) => {
+    // Update the menu items with the new updated items from MenuEditor
+    setMenuItems(updatedItems);
+  };
 
   return (
     <Container>
@@ -102,6 +126,44 @@ const RestaurantContent = ({ pageData }) => {
           </div>
         </div>
       </section>
+      <section className="flex flex-col gap-y-2">
+        <div className="text-center pt-20">
+          <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+            Menu
+          </p>
+        </div>
+        <Menu items={menuItems} />
+        <button
+          onClick={handleEditButtonClick}
+          type="button"
+          className="self-end mt-4 mr-2 py-4 px-6 bg-secondary hover:bg-secondary-darker text-white w-[80px] text-center text-base font-semibold shadow-sm rounded-md"
+        >
+          <span>Edit</span>
+        </button>
+      </section>
+
+      {isMenuEditorVisible && (
+        <section className="flex flex-col">
+          <div className="text-center pt-20">
+            <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+              Menu Editor
+            </p>
+          </div>
+          <MenuEditor
+            items={menuItems}
+            onEdit={handleEditItems} // Pass the updated items from MenuEditor
+            restaurantId={restaurantId}
+          />
+          <button
+            onClick={handleEditButtonClick}
+            type="button"
+            className="self-end mt-4 mr-2 py-4 px-6 bg-primary hover:bg-primary-darker text-white w-[80px] text-center text-base font-semibold shadow-sm rounded-md"
+          >
+            <span>X</span>
+          </button>
+        </section>
+      )}
+
       <div className="text-center pt-40">
         <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
           Reviews

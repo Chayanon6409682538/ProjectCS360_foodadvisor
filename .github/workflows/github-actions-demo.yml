@@ -9,11 +9,14 @@ on:
 jobs:
   build:
 
-    strategy:
-      matrix:
-        os: [ubuntu-latest, redhat-lastest]
-        node-version: [16.x]
+    strategy:     
+      fail-fast: false
+    matrix:
+      os: [ubuntu-latest, macos-latest, redhat-lastest]
+      node-version: [16.x, 18.x]
+
     runs-on: ${{ matrix.os }}
+
     env:
       HOST: '0.0.0.0'
       PORT: '1337'
@@ -26,24 +29,33 @@ jobs:
       ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
       STRAPI_ADMIN_CLIENT_PREVIEW_SECRET: ${{ secrets.STRAPI_ADMIN_CLIENT_PREVIEW_SECRET }}
 
-
     steps:
-    - name: Check code
-      uses: actions/checkout@v4
-    - name: Setup node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: Install dependencies
-      run: yarn install
-      working-directory: ./api
+      - name: Check code
+        uses: actions/checkout@v4
 
-    - name: Build project  
-      run: yarn build
-      working-directory: ./api
+      - name: Setup node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
 
-    - name: Test  
-      run: 
-        yarn test
-        echo "my STRAPI_ADMIN_CLIENT_PREVIEW_SECRET is ${{ secrets.STRAPI_ADMIN_CLIENT_PREVIEW_SECRET }}"
-      working-directory: ./api
+      - name: Install dependencies in api
+        run: yarn
+        working-directory: ./api
+
+      - name: Build project  
+        run: yarn build
+        working-directory: ./api
+
+      - name: Install dependencies in client
+        run: yarn
+        working-directory: ./client
+
+      - name: Test unit test client
+        run: yarn test
+        working-directory: ./client
+
+      - name: Test api
+        run: 
+          yarn test
+          echo "my STRAPI_ADMIN_CLIENT_PREVIEW_SECRET is ${{ secrets.STRAPI_ADMIN_CLIENT_PREVIEW_SECRET }}"
+        working-directory: ./api

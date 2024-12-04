@@ -1,0 +1,39 @@
+[
+    {
+      "photo": "/images/spaghetti.jpg",
+      "name": "Spaghetti",
+      "price": "$12",
+      "type": "Main Menu"
+    },
+    {
+      "photo": "/images/pizza.jpg",
+      "name": "Pizza",
+      "price": "$15",
+      "type": "Main Menu"
+    },
+    {
+      "photo": "/images/salad.jpg",
+      "name": "Caesar Salad",
+      "price": "$10",
+      "type": "Appetizer"
+    },
+    {
+      "photo": "/images/cheesecake.jpg",
+      "name": "Cheesecake",
+      "price": "$8",
+      "type": "Dessert"
+    },
+    {
+      "photo": "/images/coke.jpg",
+      "name": "Coca-Cola",
+      "price": "$2",
+      "type": "Drinks"
+    },
+    {
+      "photo": "/images/water.jpg",
+      "name": "Water",
+      "price": "$1",
+      "type": "Drinks"
+    }
+  ]
+  
