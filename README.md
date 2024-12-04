@@ -22,8 +22,6 @@
   - [Workflow Steps](#workflow-steps)
   - [Visualize Test Results in GitHub Actions](#visualize-test-results-in-github-actions)
   - [GitHub Actions Configuration](#github-actions-configuration)
-
-
 - [Project Screenshot](#project-screenshot)
 
 ## Group Information 
@@ -47,8 +45,8 @@ The goal of the FoodAdvisor project is to create a user-friendly platform that f
 
 
 ### - Technologies Used
-- **Backend:** Strapi V4
-- **Frontend:** Next.js 
+- **Backend:** Strapi V5
+- **Frontend:** React.js 
 - **Hosting/Deployment:** AWS EC2
 - **Database:** SQLite
 
@@ -261,6 +259,7 @@ After install curl, node, git, and yarn, follow these steps:
 ## How to deploy and run the project using the provided bash script [Specify the bash script path in the repo]
 
 After launching your EC2 instance and downloading the key pair for SSH access, follow this steps:
+
 
 - ### Install git:
 
