@@ -1,30 +1,30 @@
 # CS360 1/2567 Term Project: [FoodAdvisor]
 
-## 🖥️ Table of Contents 💻📌
-- [Group Information](#📋-group-information)
-- [Project Goal](#📍-project-goal)
+## Table of Contents 
+- [Group Information](#group-information)
+- [Project Goal](#project-goal)
   - [Feature](#feature)
   - [Technologies Used](#technologies-used)
   - [Software Requirement](#software-requirement)
-- [Setup AWS EC2 Instance](#🌐-setup-aws-ec2-instance)
-- [How to Deploy and Run the Project Manually](#⚙️-how-to-deploy-and-run-the-project-manually)
-- [How to Deploy and Run the Project Using the Provided Bash Script](#⚙️-how-to-deploy-and-run-the-project-using-the-provided-bash-script-specify-the-bash-script-path-in-the-repo)
-- [Unit and Integration Testing Overview](#📄-unit-and-integration-testing-overview)
-- [Setting Up Tests](#💻-setting-up-tests)
-- [Running Tests](#🏃‍♂️-running-tests)
-- [Test File Structure](#🔍-test-file-structure)
-- [Test Coverage](#📊-test-coverage)
-- [Viewing Test Results](#📈-viewing-test-results)
-- [Adding New Tests](#➕-adding-new-tests)
+- [Setup AWS EC2 Instance](#setup-aws-ec2-instance)
+- [How to Deploy and Run the Project Manually](#how-to-deploy-and-run-the-project-manually)
+- [How to Deploy and Run the Project Using the Provided Bash Script](#how-to-deploy-and-run-the-project-using-the-provided-bash-script-specify-the-bash-script-path-in-the-repo)
+- [Unit and Integration Testing Overview](#unit-and-integration-testing-overview)
+- [Setting Up Tests](#setting-up-tests)
+- [Running Tests](#running-tests)
+- [Test File Structure](#test-file-structure)
+- [Test Coverage](#test-coverage)
+- [Viewing Test Results](#viewing-test-results)
+- [Adding New Tests](#adding-new-tests)
 
 - [Node.js CI Workflow](#nodejs-ci-workflow)
-  - [Workflow Triggers](#📌-workflow-triggers)
-  - [CI Environment Matrix](#📌-ci-environment-matrix)
-  - [Workflow Steps](#📌-workflow-steps)
-  - [Visualize Test Results in GitHub Actions](#📌-visualize-test-results-in-github-actions)
-  - [GitHub Actions Configuration](#📌-github-actions-configuration)
+  - [Workflow Triggers](#workflow-triggers)
+  - [CI Environment Matrix](#ci-environment-matrix)
+  - [Workflow Steps](#workflow-steps)
+  - [Visualize Test Results in GitHub Actions](#visualize-test-results-in-github-actions)
+  - [GitHub Actions Configuration](#github-actions-configuration)
 
-- [Project Screenshot](#📷-project-screenshot)
+- [Project Screenshot](#project-screenshot)
 
 ## 📋 Group Information 
 
