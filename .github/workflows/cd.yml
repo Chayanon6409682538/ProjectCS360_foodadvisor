@@ -105,34 +105,32 @@ jobs:
             #   sudo systemctl start docker
             #   sudo systemctl enable docker
 
-          # Log in to Docker Hub
-          # echo $DOCKER_PASSWORD | sudo docker login -u $DOCKER_USERNAME --password-stdin
+            # Log in to Docker Hub
+            # echo $DOCKER_PASSWORD | sudo docker login -u $DOCKER_USERNAME --password-stdin
 
-          # Pull the Docker image from DockerHub
-          docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
-          docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
+            # Pull the Docker image from DockerHub
+            docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
 
-          PREVIEW_SECRET=$(openssl rand -hex 32)
-          JWT_SECRET=$PREVIEW_SECRET
+            PREVIEW_SECRET=$(openssl rand -hex 32)
+            JWT_SECRET=$PREVIEW_SECRET
 
-          # Run the Docker container
-          sudo docker run -d \
-            --name foodadvisor-api \
-            -e STRAPI_ADMIN_CLIENT_URL=http://$PUBLIC_IP:3000 \
-            -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
-            -e HOST=0.0.0.0 \
-            -e PORT=1337 \
-            -p 1337:1337 \
-            ${{ secrets.DOCKER_USERNAME }}/foodadvisor-api:latest
+            # Run the Docker container
+            sudo docker run -d \
+              -e STRAPI_ADMIN_CLIENT_URL=http://$PUBLIC_IP:3000 \
+              -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
+              -e HOST=0.0.0.0 \
+              -e PORT=1337 \
+              -p 1337:1337 \
+              ${{ secrets.DOCKER_USERNAME }}/foodadvisor-api:latest
 
-          sudo docker run -d \
-            --name foodadvisor-client \
-            -e PREVIEW_SECRET=$PREVIEW_SECRET \ 
-            -e NEXT_PUBLIC_API_URL=http://$PUBLIC_IP:1337
-            -p 3000:3000 \
-            ${{ secrets.DOCKER_USERNAME }}/foodadvisor-client:latest
+            sudo docker run -d \
+              -e PREVIEW_SECRET=$PREVIEW_SECRET \ 
+              -e NEXT_PUBLIC_API_URL=http://$PUBLIC_IP:1337
+              -p 3000:3000 \
+              ${{ secrets.DOCKER_USERNAME }}/foodadvisor-client:latest
             
-          EOF
+            EOF
 
           # Output the instance public DNS
           INSTANCE_PUBLIC_DNS=$(aws ec2 describe-instances \
