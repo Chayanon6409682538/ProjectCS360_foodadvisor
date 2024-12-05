@@ -69,8 +69,8 @@ jobs:
             --query 'Reservations[0].Instances[0].PublicIpAddress' \
             --output text)
 
-          echo "public_ip=${{ steps.create_ec2.outputs.public_ip }}" >> $GITHUB_OUTPUT
-          echo "public_ip : ${{ steps.create_ec2.outputs.public_ip }}"
+          echo "public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
+          echo "public_ip : $PUBLIC_IP"
 
           # Output the instance public DNS
           INSTANCE_PUBLIC_DNS=$(aws ec2 describe-instances \
