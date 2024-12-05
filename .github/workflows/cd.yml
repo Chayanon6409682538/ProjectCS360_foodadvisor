@@ -89,7 +89,7 @@ jobs:
             echo "SSH not ready yet..."
             sleep 10
           done
-          echo "public_ip : $PUBLIC_IP"
+          echo "public_ip : ${{ steps.create_ec2.outputs.public_ip }}"
 
       - name: SSH into EC2 and Pull Docker Image and Run Docker Image
         if: ${{ steps.check_image.outcome == 'success' }}
@@ -141,6 +141,6 @@ jobs:
             
             EOF
             
-          echo "public_ip : $PUBLIC_IP"
+          echo "public_ip : ${{ steps.create_ec2.outputs.public_ip }}"
           echo "http://$PUBLIC_IP:1337"
           echo "http://$PUBLIC_IP:3000"
