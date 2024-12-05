@@ -126,7 +126,7 @@ jobs:
 
           sudo docker run -d \
             -e PREVIEW_SECRET=$PREVIEW_SECRET \ 
-            -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337
+            -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337 \
             -p 3000:3000 \
             ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
           EOF
