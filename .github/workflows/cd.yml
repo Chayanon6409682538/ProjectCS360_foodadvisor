@@ -139,7 +139,7 @@ jobs:
               -p 3000:3000 \
               ${{ secrets.DOCKER_USERNAME }}/foodadvisor-client:latest
             
-            EOF
+          EOF
             
           echo "public_ip : ${{ steps.create_ec2.outputs.public_ip }}"
           echo "http://${{ steps.create_ec2.outputs.public_ip }}:1337"
