@@ -84,13 +84,13 @@ jobs:
           # echo "http://$PUBLIC_IP:1337"
           # echo "http://$PUBLIC_IP:3000"
 
-      - name: Wait for SSH
+      - name: Ready SSH
         env:
           PLUBIC_IP: ${{ steps.create_ec2.outputs.public_ip }}
         run: |
           echo "Waiting for SSH"
           # Try until port 22 is open
-          while ! nc -z $PLUBIC_IP 22; do
+          while ! nc -z ${{ steps.create_ec2.outputs.public_ip }} 22; do
             echo "SSH not ready yet..."
             sleep 10
           done
@@ -120,7 +120,7 @@ jobs:
           JWT_SECRET=$PREVIEW_SECRET
 
           sudo docker run -d \
-            --name foodadvisor-api
+            --name foodadvisor-api \
             -e STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000 \
             -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
             -e HOST=0.0.0.0 \
@@ -129,7 +129,7 @@ jobs:
              ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
 
           sudo docker run -d \
-            --name foodadvisor-client
+            --name foodadvisor-client \
             -e PREVIEW_SECRET=$PREVIEW_SECRET \
             -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337 \
             -p 3000:3000 \
