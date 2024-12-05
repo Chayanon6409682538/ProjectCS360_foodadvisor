@@ -1,0 +1,140 @@
+name: CD - Deploy to EC2 with Docker (Human trigger)
+
+on:
+  push:
+    branches:
+      - master
+      - workflow
+# workflow_dispatch:
+
+jobs:
+  check-image-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout Repository
+        uses: actions/checkout@v3    
+        
+      # Step 2: Check if Docker Image Exists
+      - name: Check if Docker Image Exists
+        id: check_image
+        run: |
+          REPOSITORY="${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client"  # Replace with your DockerHub repository name
+          TAG="latest"
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_TOKEN }}" https://hub.docker.com/v2/repositories/${REPOSITORY}/tags/${TAG}/)
+          if [ "$RESPONSE" -ne 200 ]; then
+              echo "Docker image not found. Exiting workflow."
+              exit 1
+          fi
+          echo "Docker image exists. Proceeding to deployment."
+
+      # Step 3: Set AWS Credentials in Environment Variables
+      - name: Set AWS Credentials
+        if: ${{ steps.check_image.outcome == 'success' }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: echo "AWS credentials set."
+
+      # Step 4: Create EC2 Instance and Deploy the Application
+      - name: Create EC2 Instance and Deploy the Application
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          # Define instance details
+          INSTANCE_ID=$(aws ec2 run-instances \
+            --image-id ami-06b21ccaeff8cd686 \
+            --instance-type t2.micro \
+            --key-name ${{ secrets.AWS_KP_NAME }} \
+            --security-group-ids ${{ secrets.AWS_SG_ID }} \
+            --user-data file://user-data.sh \
+            --query 'Instances[0].InstanceId' \
+            --output text)
+
+          echo "Instance ID: $INSTANCE_ID"
+          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+
+          # Wait for the instance to be running
+          aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+
+          PUBLIC_IP=$(aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query 'Reservations[0].Instances[0].PublicIpAddress' \
+            --output text)
+
+          echo "public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
+
+      - name: SSH into EC2 and Pull Docker Image
+        if: ${{ steps.check_image.outcome == 'success' }}
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+          PUBLIC_IP: ${{ steps.create-ec2.outputs.public_ip }}
+        run: |
+          # Set up the SSH key for EC2
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" | base64 --decode > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          # SSH into EC2 instance and pull Docker image
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@$PUBLIC_IP << 'EOF'
+            # Update the system
+            sudo dnf update -y
+
+          # Log in to Docker Hub
+          # echo $DOCKER_PASSWORD | sudo docker login -u $DOCKER_USERNAME --password-stdin
+
+          # Pull the Docker image from DockerHub
+          docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
+          docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
+
+          PREVIEW_SECRET=$(openssl rand -hex 32)
+          JWT_SECRET=$PREVIEW_SECRET
+
+          # Run the Docker container
+          docker run -d \
+            --name foodadvisor-api \
+            --restart unless-stopped \
+            -e NODE_ENV=production \
+            -e PREVIEW_SECRET=$PREVIEW_SECRET \
+            -e JWT_SECRET=$PREVIEW_SECRET \
+            # -e ADMIN_JWT_SECRET=<your_admin_jwt_secret> \
+            -e STRAPI_ADMIN_CLIENT_URL=http://$PUBLIC_IP:3000 \
+            -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
+            -e HOST=0.0.0.0 \
+            -e PORT=1337 \
+            # -v $(pwd)/uploads:/app/public/uploads \
+            -p 1337:1337 \
+            ${{ secrets.DOCKER_USERNAME }}/foodadvisor-api:latest
+
+            docker run -d \
+            --name foodadvisor-client \
+            --restart unless-stopped \
+            -e NODE_ENV=production \
+            -e PREVIEW_SECRET=$PREVIEW_SECRET \
+            -e JWT_SECRET=$PREVIEW_SECRET \
+            # -e ADMIN_JWT_SECRET=<your_admin_jwt_secret> \
+            -e STRAPI_ADMIN_CLIENT_URL=http://$PUBLIC_IP:3000 \
+            -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
+            -e NEXT_PUBLIC_API_URL=http://$PUBLIC_IP:1337
+            -e HOST=0.0.0.0 \
+            -e PORT=1337 \
+            # -v $(pwd)/uploads:/app/public/uploads \
+            -p 1337:1337 \
+            ${{ secrets.DOCKER_USERNAME }}/foodadvisor-client:latest
+            
+          EOF
+
+          # Output the instance public DNS
+          INSTANCE_PUBLIC_DNS=$(aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query 'Reservations[0].Instances[0].PublicDnsName' \
+            --output text)
+          echo "Instance Public DNS: $INSTANCE_PUBLIC_DNS"
+          echo "http://$PUBLIC_IP:1337"
+          echo "http://$PUBLIC_IP:3000"
