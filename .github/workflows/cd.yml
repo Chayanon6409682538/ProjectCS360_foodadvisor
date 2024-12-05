@@ -70,6 +70,14 @@ jobs:
             --output text)
 
           echo "public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
+          echo "public_ip : $PUBLIC_IP"
+
+          # Output the instance public DNS
+          INSTANCE_PUBLIC_DNS=$(aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query 'Reservations[0].Instances[0].PublicDnsName' \
+            --output text)
+          echo "Instance Public DNS: $INSTANCE_PUBLIC_DNS"
 
       - name: Wait for SSH
         env:
@@ -82,7 +90,7 @@ jobs:
             sleep 10
           done
 
-      - name: SSH into EC2 and Pull Docker Image
+      - name: SSH into EC2 and Pull Docker Image and Run Docker Image
         if: ${{ steps.check_image.outcome == 'success' }}
         env:
           PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
@@ -131,12 +139,7 @@ jobs:
               ${{ secrets.DOCKER_USERNAME }}/foodadvisor-client:latest
             
             EOF
-
-          # Output the instance public DNS
-          INSTANCE_PUBLIC_DNS=$(aws ec2 describe-instances \
-            --instance-ids $INSTANCE_ID \
-            --query 'Reservations[0].Instances[0].PublicDnsName' \
-            --output text)
-          echo "Instance Public DNS: $INSTANCE_PUBLIC_DNS"
+            
+          echo "public_ip : $PUBLIC_IP"
           echo "http://$PUBLIC_IP:1337"
           echo "http://$PUBLIC_IP:3000"
