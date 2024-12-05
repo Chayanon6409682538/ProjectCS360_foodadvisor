@@ -71,6 +71,17 @@ jobs:
 
           echo "public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
 
+      - name: Wait for SSH
+        env:
+          PLUBIC_IP: ${{ steps.create_ec2.outputs.public_ip }}
+        run: |
+          echo "Waiting for SSH"
+          # Try until port 22 is open
+          while ! nc -z $PLUBIC_IP 22; do
+            echo "SSH not ready yet..."
+            sleep 10
+          done
+
       - name: SSH into EC2 and Pull Docker Image
         if: ${{ steps.check_image.outcome == 'success' }}
         env:
