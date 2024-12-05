@@ -77,9 +77,12 @@ jobs:
             --instance-ids $INSTANCE_ID \
             --query 'Reservations[0].Instances[0].PublicDnsName' \
             --output text)
+            
           echo "Instance Public DNS: $INSTANCE_PUBLIC_DNS"
-          echo "http://$PUBLIC_IP:1337"
-          echo "http://$PUBLIC_IP:3000"
+          echo "public_dns=$INSTANCE_PUBLIC_DNS" >> $GITHUB_OUTPUT
+          
+          # echo "http://$PUBLIC_IP:1337"
+          # echo "http://$PUBLIC_IP:3000"
 
       # - name: Wait for SSH
       #   env:
@@ -107,25 +110,25 @@ jobs:
           sudo yum install -y docker
           sudo service docker start
 
-            docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
-            docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
+            # docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
+            # docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
 
-            PREVIEW_SECRET=$(openssl rand -hex 32)
-            JWT_SECRET=$PREVIEW_SECRET
+          PREVIEW_SECRET=$(openssl rand -hex 32)
+          JWT_SECRET=$PREVIEW_SECRET
 
-            sudo docker run -d \
-              -e STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000 \
-              -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
-              -e HOST=0.0.0.0 \
-              -e PORT=1337 \
-              -p 1337:1337 \
-              ${{ secrets.DOCKER_USERNAME }}/foodadvisor-api:latest
+          sudo docker run -d \
+            -e STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000 \
+            -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
+            -e HOST=0.0.0.0 \
+            -e PORT=1337 \
+            -p 1337:1337 \
+             ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
 
-            sudo docker run -d \
-              -e PREVIEW_SECRET=$PREVIEW_SECRET \ 
-              -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337
-              -p 3000:3000 \
-              ${{ secrets.DOCKER_USERNAME }}/foodadvisor-client:latest
+          sudo docker run -d \
+            -e PREVIEW_SECRET=$PREVIEW_SECRET \ 
+            -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337
+            -p 3000:3000 \
+            ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
           EOF
             
           echo "public_ip : ${{ steps.create_ec2.outputs.public_ip }}"
