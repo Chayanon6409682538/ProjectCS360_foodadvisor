@@ -51,7 +51,7 @@ jobs:
           # Define instance details
           INSTANCE_ID=$(aws ec2 run-instances \
             --image-id ami-06b21ccaeff8cd686 \
-            --instance-type t2.micro \
+            --instance-type t2.medium \
             --key-name ${{ secrets.AWS_KP_NAME }} \
             --security-group-ids ${{ secrets.AWS_SG_ID }} \
             --user-data file://user-data.sh \
@@ -85,7 +85,14 @@ jobs:
           # SSH into EC2 instance and pull Docker image
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@$PUBLIC_IP << 'EOF'
             # Update the system
-            sudo dnf update -y
+              # sudo dnf update -y
+
+            # # Install Docker
+            #   sudo dnf install -y docker
+
+            # # Start Docker service
+            #   sudo systemctl start docker
+            #   sudo systemctl enable docker
 
           # Log in to Docker Hub
           # echo $DOCKER_PASSWORD | sudo docker login -u $DOCKER_USERNAME --password-stdin
