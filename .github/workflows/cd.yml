@@ -121,17 +121,11 @@ jobs:
 
           sudo docker run -d \
             --name foodadvisor-api \
-            -e STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000 \
-            -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
-            -e HOST=0.0.0.0 \
-            -e PORT=1337 \
             -p 1337:1337 \
              ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
 
           sudo docker run -d \
             --name foodadvisor-client \
-            -e PREVIEW_SECRET=$PREVIEW_SECRET \
-            -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337 \
             -p 3000:3000 \
              ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
 
