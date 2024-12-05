@@ -19,5 +19,9 @@ sudo usermod -aG docker ec2-user
 
 # Pull and run the Docker container
 
+# Fetch the EC2 public IP from the metadata service
+EC2_PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
 
+# Output the EC2 public IP
 echo "Setup complete. Docker container is running."
+echo "EC2 Public IP Address: $EC2_PUBLIC_IP"
