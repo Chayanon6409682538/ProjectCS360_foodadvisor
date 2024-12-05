@@ -116,19 +116,23 @@ jobs:
           PREVIEW_SECRET=$(openssl rand -hex 32)
           JWT_SECRET=$PREVIEW_SECRET
 
-          sudo docker run -d \
-            -e STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000 \
-            -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
-            -e HOST=0.0.0.0 \
-            -e PORT=1337 \
-            -p 1337:1337 \
-             ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
+          echo "HOST=0.0.0.0" > api.env
+          echo "PORT=1337" >> api.env
+          echo "STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000" >> api.env
+          echo "STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET" >> api.env
 
           sudo docker run -d \
-            -e PREVIEW_SECRET=$PREVIEW_SECRET \
-            -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337 \
+            --env-file api.env \
+            -p 1337:1337 \
+            ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
+
+          echo "NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337" > client.env
+          echo "PREVIEW_SECRET=$PREVIEW_SECRET" >> client.env
+
+          sudo docker run -d \
+            --env-file client.env \
             -p 3000:3000 \
-             ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
+            ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
           EOF
             
           echo "public_ip : ${{ steps.create_ec2.outputs.public_ip }}"
