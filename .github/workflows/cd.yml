@@ -89,6 +89,7 @@ jobs:
             echo "SSH not ready yet..."
             sleep 10
           done
+          echo "public_ip : $PUBLIC_IP"
 
       - name: SSH into EC2 and Pull Docker Image and Run Docker Image
         if: ${{ steps.check_image.outcome == 'success' }}
