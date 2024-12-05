@@ -6,11 +6,11 @@ COPY package.json yarn.lock ./
 
 RUN yarn install
 
-COPY . .
-
 RUN yarn seed
 
 RUN yarn build
+
+COPY . .
 
 EXPOSE 1337
 
