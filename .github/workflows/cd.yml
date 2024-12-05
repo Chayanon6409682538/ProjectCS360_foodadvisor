@@ -97,49 +97,32 @@ jobs:
           PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
           PUBLIC_IP: ${{ steps.create_ec2.outputs.public_ip }}
         run: |
-          # # Set up the SSH key for EC2
-          # mkdir -p ~/.ssh
-          # echo "${{ secrets.EC2_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/id_rsa
-          # chmod 600 ~/.ssh/id_rsa
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-          # # SSH into EC2 instance and pull Docker image
-          # ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ steps.create_ec2.outputs.public_ip }} << EOF
-          #   # Update the system
-          #     # sudo dnf update -y
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ steps.create_ec2.outputs.public_ip }} << EOF
 
-          #   # # Install Docker
-          #   #   sudo dnf install -y docker
+            docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
 
-          #   # # Start Docker service
-          #   #   sudo systemctl start docker
-          #   #   sudo systemctl enable docker
+            PREVIEW_SECRET=$(openssl rand -hex 32)
+            JWT_SECRET=$PREVIEW_SECRET
 
-          #   # Log in to Docker Hub
-          #   # echo $DOCKER_PASSWORD | sudo docker login -u $DOCKER_USERNAME --password-stdin
+            sudo docker run -d \
+              -e STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000 \
+              -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
+              -e HOST=0.0.0.0 \
+              -e PORT=1337 \
+              -p 1337:1337 \
+              ${{ secrets.DOCKER_USERNAME }}/foodadvisor-api:latest
 
-          #   # Pull the Docker image from DockerHub
-          #   docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
-          #   docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
-
-          #   PREVIEW_SECRET=$(openssl rand -hex 32)
-          #   JWT_SECRET=$PREVIEW_SECRET
-
-          #   # Run the Docker container
-          #   sudo docker run -d \
-          #     -e STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000 \
-          #     -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
-          #     -e HOST=0.0.0.0 \
-          #     -e PORT=1337 \
-          #     -p 1337:1337 \
-          #     ${{ secrets.DOCKER_USERNAME }}/foodadvisor-api:latest
-
-          #   sudo docker run -d \
-          #     -e PREVIEW_SECRET=$PREVIEW_SECRET \ 
-          #     -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337
-          #     -p 3000:3000 \
-          #     ${{ secrets.DOCKER_USERNAME }}/foodadvisor-client:latest
-            
-          # EOF
+            sudo docker run -d \
+              -e PREVIEW_SECRET=$PREVIEW_SECRET \ 
+              -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337
+              -p 3000:3000 \
+              ${{ secrets.DOCKER_USERNAME }}/foodadvisor-client:latest
+          EOF
             
           echo "public_ip : ${{ steps.create_ec2.outputs.public_ip }}"
           echo "http://${{ steps.create_ec2.outputs.public_ip }}:1337"
