@@ -116,35 +116,20 @@ jobs:
           JWT_SECRET=$PREVIEW_SECRET
 
           # Run the Docker container
-          docker run -d \
+          sudo docker run -d \
             --name foodadvisor-api \
-            --restart unless-stopped \
-            -e NODE_ENV=production \
-            -e PREVIEW_SECRET=$PREVIEW_SECRET \
-            -e JWT_SECRET=$PREVIEW_SECRET \
-            # -e ADMIN_JWT_SECRET=<your_admin_jwt_secret> \
             -e STRAPI_ADMIN_CLIENT_URL=http://$PUBLIC_IP:3000 \
             -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
             -e HOST=0.0.0.0 \
             -e PORT=1337 \
-            # -v $(pwd)/uploads:/app/public/uploads \
             -p 1337:1337 \
             ${{ secrets.DOCKER_USERNAME }}/foodadvisor-api:latest
 
-            docker run -d \
+          sudo docker run -d \
             --name foodadvisor-client \
-            --restart unless-stopped \
-            -e NODE_ENV=production \
-            -e PREVIEW_SECRET=$PREVIEW_SECRET \
-            -e JWT_SECRET=$PREVIEW_SECRET \
-            # -e ADMIN_JWT_SECRET=<your_admin_jwt_secret> \
-            -e STRAPI_ADMIN_CLIENT_URL=http://$PUBLIC_IP:3000 \
-            -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
+            -e PREVIEW_SECRET=$PREVIEW_SECRET \ 
             -e NEXT_PUBLIC_API_URL=http://$PUBLIC_IP:1337
-            -e HOST=0.0.0.0 \
-            -e PORT=1337 \
-            # -v $(pwd)/uploads:/app/public/uploads \
-            -p 1337:1337 \
+            -p 3000:3000 \
             ${{ secrets.DOCKER_USERNAME }}/foodadvisor-client:latest
             
           EOF
