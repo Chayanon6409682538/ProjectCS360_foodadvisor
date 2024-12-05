@@ -21,27 +21,29 @@ sudo usermod -aG docker ec2-user
 EC2_PUBLIC_IP=$(curl -s http://ifconfig.me)
 
 # Generate the PREVIEW_SECRET (a random 32-byte hexadecimal string)
-PREVIEW_SECRET=$(openssl rand -hex 32)
+secret=$(openssl rand -base64 32)
 
 # Output the EC2 public IP
 echo "Setup complete. Docker container is running."
 echo "EC2 Public IP Address: $EC2_PUBLIC_IP"
-echo "Generated PREVIEW_SECRET: $PREVIEW_SECRET"
+echo "Generated PREVIEW_SECRET: $secret"
+
+# Create an env file for API
+apiENVLocation=./api/.env
+echo HOST=0.0.0.0 > $apiENVLocation
+echo PORT=1337 >> $apiENVLocation
+echo STRAPI_ADMIN_CLIENT_URL=http://${publicIPv4}:3000 >> $apiENVLocation
+echo STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=${secret} >> $apiENVLocation
+
+# Create an env file for Client
+clientENVLocation=./client/.env
+echo NEXT_PUBLIC_API_URL=http://${publicIPv4}:1337 > $clientENVLocation
+echo PREVIEW_SECRET=${secret}  >> $clientENVLocation
 
 # Run the Strapi Docker container
 echo "Running Strapi Docker container..."
-sudo docker run -d \
-  -e STRAPI_ADMIN_CLIENT_URL=http://$EC2_PUBLIC_IP:3000 \
-  -e STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=$PREVIEW_SECRET \
-  -e HOST=0.0.0.0 \
-  -e PORT=1337 \
-  -p 1337:1337 \
-  chayanonkhanrit/cs360_foodadvisor_api:latest
+sudo docker run -d -p 1337:1337 chayanonkhanrit/cs360_foodadvisor_api:latest
 
 # Run the Next.js client Docker container
 echo "Running Next.js client Docker container..."
-sudo docker run -d \
-  -e PREVIEW_SECRET=$PREVIEW_SECRET \
-  -e NEXT_PUBLIC_API_URL=http://$EC2_PUBLIC_IP:1337 \
-  -p 3000:3000 \
-  chayanonkhanrit/cs360_foodadvisor_client:latest
+sudo docker run -d -p 3000:3000 chayanonkhanrit/cs360_foodadvisor_client:latest
