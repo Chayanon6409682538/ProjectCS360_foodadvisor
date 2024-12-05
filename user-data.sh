@@ -36,7 +36,7 @@ sudo docker run -d \
   -e HOST=0.0.0.0 \
   -e PORT=1337 \
   -p 1337:1337 \
-  ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
+  chayanonkhanrit/cs360_foodadvisor_api:latest
 
 # Run the Next.js client Docker container
 echo "Running Next.js client Docker container..."
@@ -44,4 +44,4 @@ sudo docker run -d \
   -e PREVIEW_SECRET=$PREVIEW_SECRET \
   -e NEXT_PUBLIC_API_URL=http://$EC2_PUBLIC_IP:1337 \
   -p 3000:3000 \
-  ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
+  chayanonkhanrit/cs360_foodadvisor_client:latest
