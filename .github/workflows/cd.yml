@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - workflow
+      - test-workflow
 # workflow_dispatch:
 
 jobs:
