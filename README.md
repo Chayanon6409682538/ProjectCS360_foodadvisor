@@ -1,6 +1,30 @@
 # CS360 1/2567 Term Project: [FoodAdvisor]
 
-## 📋 Group Information 
+## Table of Contents 
+- [Group Information](#group-information)
+- [Project Goal](#project-goal)
+  - [Feature](#feature)
+  - [Technologies Used](#technologies-used)
+  - [Software Requirement](#software-requirement)
+- [Setup AWS EC2 Instance](#setup-aws-ec2-instance)
+- [How to Deploy and Run the Project Manually](#how-to-deploy-and-run-the-project-manually)
+- [How to Deploy and Run the Project Using the Provided Bash Script](#how-to-deploy-and-run-the-project-using-the-provided-bash-script-specify-the-bash-script-path-in-the-repo)
+- [Unit and Integration Testing Overview](#unit-and-integration-testing-overview)
+- [Setting Up Tests](#setting-up-tests)
+- [Running Tests](#running-tests)
+- [Test File Structure](#test-file-structure)
+- [Test Coverage](#test-coverage)
+- [Viewing Test Results](#viewing-test-results)
+- [Adding New Tests](#adding-new-tests)
+- [Node.js CI Workflow](#nodejs-ci-workflow)
+  - [Workflow Triggers](#workflow-triggers)
+  - [CI Environment Matrix](#ci-environment-matrix)
+  - [Workflow Steps](#workflow-steps)
+  - [Visualize Test Results in GitHub Actions](#visualize-test-results-in-github-actions)
+  - [GitHub Actions Configuration](#github-actions-configuration)
+- [Project Screenshot](#project-screenshot)
+
+## Group Information 
 
 - **Group Name:** PakPok
 
@@ -13,49 +37,45 @@
     | Supakorn Oupkaew             | 6409682918 |
     | Anallena Libha               | 6409682942 |
 
-## 📍 Project Goal
+## Project Goal
 The goal of the FoodAdvisor project is to create a user-friendly platform that facilitates seamless content management and enhances user engagement. The aim is to further enhance this platform to make it even more user-friendly and customizable to meet users' needs. This will deliver a comprehensive solution that simplifies content management, improves the user experience, and fosters collaboration within the food community.
 
-### - Features
-- **Feature 1:** User Registration and Authentication
-- **Feature 2:** Review and Rating System
-- **Feature 3:** Article Publishing Platform
-- **Feature 4:** Dynamic Food Menu
-- **Feature 5:** Role-Based Access Control
+### - Feature
+- **Feature 1:** Dynamic Food Menu
+
 
 ### - Technologies Used
-- **Backend:** Strapi V5
-- **Frontend:** React.js 
+- **Backend:** Strapi V4
+- **Frontend:** Next.js
 - **Hosting/Deployment:** AWS EC2
 - **Database:** SQLite
 
 ### - Software Requirement 
-- **node:** 16
-- **npm:** 8 
-- **yarn:** 1
-- **curl:** 7
-- **nvm:** 0.3
-- **git:** 2
+  |software | version  |
+  |---------|----------|
+  | node    | 16       |
+  | npm     | 8        |
+  | yarn    | 1        |
+  | curl    | 7        |
+  | nvm     | 0.3      |
+  | git     | 2        |
 
-## 💻 Setup AWS EC2 Instance
+## Setup AWS EC2 Instance
 
 > [!NOTE]
 >- **Launch AWS EC2 Instance:**
->    - Instance Type: t2.small
->    - AMI: Ubuntu Server 22.04 LTS (HVM),EBS General Purpose (SSD) Volume Type
+>    - Instance Type: t2.medium
+>    - AMI: Amazon Linux 2023 AMI
 >    - Operating System: Amazon Linux
->    - Storage: 1x16 GiB gp2 Root volume
+>    - Storage: 1x16 GiB gp3 Root volume
 >
 >- **Configure Security Group Rules:**
->
->    - Type: SSH, Protocol: TCP, Port Range: 22, Source: ::/0
->
->    - Type: HTTP, Protocol: TCP, Port Range: 80, Source: 0.0.0.0/0, ::/0
->
->
->    - Type: Custom TCP Rule, Protocol: TCP, Port Range: 1337, Source: 0.0.0.0/0
->
->    - Type: Custom TCP Rule, Protocol: TCP, Port Range: 3000, Source: 0.0.0.0/0
+>      | Type           | Protocol  |  Port Range  |  Source        |
+>      |----------------|-----------|--------------|----------------|
+>      |SSH             | TCP       | 22           |::/0            |
+>      |HTTP            | TCP       | 80           |0.0.0.0/0, ::/0 |
+>      |Custom TCP Rule | TCP       | 1337         |0.0.0.0/0      |
+>      |Custom TCP Rule | TCP       | 3000         |0.0.0.0/0      |
 
 ### Step by step:
 1. **Log into AWS Management Console:**
@@ -72,16 +92,15 @@ The goal of the FoodAdvisor project is to create a user-friendly platform that f
 
 4. **[Choose an Amazon Machine Image (AMI)](#Launch-AWS-EC2-Instance):**
 
-    - Select AMI you want to use.
+    - Select Amazon Linux 2023 AMI.
 
 5. **[Launch AWS EC2 Instance](#Launch-AWS-EC2-Instance):**
 
-    - Select the type of Instance you want to use.
-    - Set configurations such as the number of Instances and Network settings according to your needs.
+    - Select t2.medium .
 
 6. **[Add Storage](#Launch-AWS-EC2-Instance):**
 
-    - Choose the size of the storage you want to use.
+    - Choose 16 Gib gp3.
 
 7. (Optional) **Add Tags:** 
 
@@ -107,7 +126,7 @@ The goal of the FoodAdvisor project is to create a user-friendly platform that f
     
         to connect to the EC2 Instance using the IP Address and Key Pair you created. 
 
-## 📌 How to deploy and run the project manually
+## How to deploy and run the project manually
 
 ### Step by step:
 After launching your EC2 instance and downloading the key pair for SSH access, follow these steps:
@@ -236,9 +255,10 @@ After install curl, node, git, and yarn, follow these steps:
 
     - http://[EC2 public ip]:3000 next.js frontend
 
-## 📌 How to deploy and run the project using the provided bash script [Specify the bash script path in the repo]
+## How to deploy and run the project using the provided bash script [Specify the bash script path in the repo]
 
 After launching your EC2 instance and downloading the key pair for SSH access, follow this steps:
+
 
 - ### Install git:
 
@@ -271,7 +291,7 @@ After install git, follow these steps:
 
             ./install_strapi_foodadvisor.sh
 
-## 📄 Unit and Integration Testing Overview
+## Unit and Integration Testing Overview
 In the FoodAdvisor project, which is a food menu application using Strapi for the backend and Next.js for the frontend.
 
 - Testing Tools
@@ -283,7 +303,7 @@ In the FoodAdvisor project, which is a food menu application using Strapi for th
     - Strapi Testing Utils: For streamlining testing of the Strapi backend APIs.
 
 
-## 💻 Setting Up Tests
+## Setting Up Tests
 ### Step by step:
 1. Install Testing Dependencies by running
 
@@ -294,7 +314,7 @@ In the FoodAdvisor project, which is a food menu application using Strapi for th
         add "test": "jest --coverage 2>&1" to script in package.json
 
 
-## 🏃‍♂️ Running Tests
+## Running Tests
 ### Step by step:
 1. Navigate to your `./foodadvisor/client` folder by running
 
@@ -312,7 +332,7 @@ In the FoodAdvisor project, which is a food menu application using Strapi for th
 
 
 
-## 🔌 Test File Structure
+## Test File Structure
 
 ### clien test
 
@@ -321,7 +341,7 @@ In the FoodAdvisor project, which is a food menu application using Strapi for th
     │   ├── menu.test.js/ 
 
 
-## 🏷️ Test Coverage
+## Test Coverage
 ### 1. Create Menu Function
     describe('createMenu', () => {
     it('should create a menu item and return it', async () => {
@@ -517,7 +537,7 @@ In the FoodAdvisor project, which is a food menu application using Strapi for th
     });
   
 
-## 🔍 Viewing Test Results 
+## Viewing Test Results 
 This is the test result:
 
         Menu Services Tests
@@ -552,7 +572,7 @@ This is the test result:
     Ran all test suites.
     Done in 21.85s.
 
-## 🖇️ Adding New Tests
+## Adding New Tests
 
 
 Create new files in `_tests_` and following this pattern:
@@ -568,7 +588,7 @@ Create new files in `_tests_` and following this pattern:
 # Node.js CI Workflow
 
 
-## 📌 Workflow Triggers
+## Workflow Triggers
 The workflow is triggered on:
 
 - Push events to `master` and `dev` branches
@@ -576,7 +596,7 @@ The workflow is triggered on:
 - Pull request events to `master` and `dev` branches
 
 
-## 📌 CI Environment Matrix
+## CI Environment Matrix
 The workflow runs tests across the following combinations:
 
 #### Operating Systems
@@ -587,7 +607,7 @@ The workflow runs tests across the following combinations:
 - 16.x
 - 18.x
 
-## 📌 Workflow Steps:
+## Workflow Steps:
 1. Check code
 
         clone repository uses: actions/checkout@v4
@@ -627,7 +647,7 @@ The workflow runs tests across the following combinations:
         working-directory: ./client
 
 
-## 📌 Visualize Test Results in GitHub Actions
+## Visualize Test Results in GitHub Actions
 1. Go to `Action` page.
 2. Selected latest workflows.
 3. Selected passed job.
@@ -635,7 +655,7 @@ The workflow runs tests across the following combinations:
 
 After completed, these steps will show the test results.
 
-## 📌 GitHub Actions Configuration
+## GitHub Actions Configuration
 This workflow uses the following configuration `(YAML file)`:
 
     name: Github Actions Workflow
@@ -689,7 +709,7 @@ This workflow uses the following configuration `(YAML file)`:
       working-directory: ./api
 
 
-## 📷 Project Screenshot
+## Project Screenshot
 
 ![Project Screenshot](image1.png)
 ![Project Screenshot](image2.png)
