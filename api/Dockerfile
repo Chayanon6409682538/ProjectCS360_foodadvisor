@@ -14,11 +14,8 @@ RUN yarn install
 COPY . .
 
 
-# Build
-RUN yarn build
-
 # Expose the port the app runs on
 EXPOSE 1337
 
 # Command to run the application
-CMD ["yarn", "start"]
+CMD ["sh", "-c", "yarn seed && yarn build && yarn start"]
