@@ -92,6 +92,7 @@ const MenuEditor = ({ items, onEdit, restaurantId }) => {
           return updatedItems;
         });
       }
+      window.location.reload();
     } catch (error) {
       console.error('Error updating item:', error);
     }
