@@ -2,7 +2,7 @@ name: CI/CD - Test Source Code , Build and Push image , Create EC2 instance and 
  
 on:
  push:
-   branches: [master, dev, workflow ]
+   branches: [master, workflow ]
    paths-ignore:
      - 'README.md'
  pull_request:

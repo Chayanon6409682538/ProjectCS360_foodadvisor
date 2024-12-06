@@ -13,7 +13,6 @@ RUN yarn install
 # Copy application code
 COPY . .
 
-RUN yarn seed
 
 # Build
 RUN yarn build

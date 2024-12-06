@@ -11,6 +11,7 @@ on:
  #     - 'README.md'
   workflow_dispatch:
 
+
 jobs:
   # Step 1: Test Source Code
   test-source-code:
@@ -71,6 +72,7 @@ jobs:
       - name: Build Docker Image Api
         run: |
           docker build -f api/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest ./api
+
 
       - name: Push Docker Image Api to DockerHub
         run: |
