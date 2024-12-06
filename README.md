@@ -304,14 +304,9 @@ In the FoodAdvisor project, which is a food menu application using Strapi for th
 
 
 ## Setting Up Tests
-### Step by step:
-1. Install Testing Dependencies by running
+Install Testing Dependencies by running
 
         yarn add jest supertest --save-dev
-
-2. Setup package.json
-
-        add "test": "jest --coverage 2>&1" to script in package.json
 
 
 ## Running Tests
