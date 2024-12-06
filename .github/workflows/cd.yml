@@ -146,7 +146,7 @@ jobs:
           sudo docker run -d \
             --name foodadvisor-client \
             -p 3000:3000 \
-            -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }} \
+            -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337 \
             -e PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }} \
              ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
 
