@@ -9,7 +9,7 @@ on:
    branches: [master, dev, workflow ]
    paths-ignore:
      - 'README.md'
-  # workflow_dispatch:
+  # workflow_dispatch: 
 
 jobs:
   # Step 1: Test Source Code
