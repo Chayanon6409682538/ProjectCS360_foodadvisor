@@ -103,8 +103,6 @@ jobs:
           echo PORT=1337 >> .env
           echo STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000 >> .env
           echo STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }} >> .env
-          echo NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337 >> .env
-          echo PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}  >> .env
 
       - name: Transfer .env to EC2
         env:
@@ -148,7 +146,8 @@ jobs:
           sudo docker run -d \
             --name foodadvisor-client \
             -p 3000:3000 \
-            --env-file /home/ec2-user/.env \
+            -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }} \
+            -e PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }} \
              ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
 
           # sudo docker exec foodadvisor-api sh -c 'echo "HOST=0.0.0.0\nPORT=1337\nSTRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000\nSTRAPI_ADMIN_CLIENT_PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}" > /app/.env'
