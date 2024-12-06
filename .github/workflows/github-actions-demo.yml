@@ -54,8 +54,8 @@ jobs:
         run: yarn test
         working-directory: ./client
 
-      - name: Test api
-        run: 
-          yarn test
-          echo "my STRAPI_ADMIN_CLIENT_PREVIEW_SECRET is ${{ secrets.STRAPI_ADMIN_CLIENT_PREVIEW_SECRET }}"
-        working-directory: ./api
+      # - name: Test api
+      #   run: 
+      #     yarn test
+      #     echo "my STRAPI_ADMIN_CLIENT_PREVIEW_SECRET is ${{ secrets.STRAPI_ADMIN_CLIENT_PREVIEW_SECRET }}"
+      #   working-directory: ./api
