@@ -96,6 +96,16 @@ jobs:
           done
           echo "public_ip : ${{ steps.create_ec2.outputs.public_ip }}"
 
+      - name: Create environment file
+        run: |
+          touch .env 
+          echo HOST=0.0.0.0 >> .env
+          echo PORT=1337 >> .env
+          echo STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000 >> .env
+          echo STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }} >> .env
+          echo NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337 >> .env
+          echo PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}  >> .env
+
       - name: SSH into EC2 and Pull Docker Image and Run Docker Image
         if: ${{ steps.check_image.outcome == 'success' }}
         env:
@@ -108,14 +118,6 @@ jobs:
 
           # Define EC2 public IP
           PUBLIC_IP="${{ steps.create_ec2.outputs.public_ip }}"
-
-          touch .env 
-          echo HOST=0.0.0.0 >> .env
-          echo PORT=1337 >> .env
-          echo STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000 >> .env
-          echo STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }} >> .env
-          echo NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337 >> .env
-          echo PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}  >> .env
 
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ steps.create_ec2.outputs.public_ip }} << EOF
           sudo yum install -y docker
