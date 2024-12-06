@@ -1,0 +1,284 @@
+name: CI/CD - Test Source Code , Build and Push image , Create EC2 instance and Deploy 
+ 
+on:
+ push:
+   branches: [master, dev, workflow ]
+   paths-ignore:
+     - 'README.md'
+ pull_request:
+   branches: [master, dev, workflow ]
+   paths-ignore:
+     - 'README.md'
+  # workflow_dispatch:
+
+jobs:
+  # Step 1: Test Source Code
+  test-source-code:
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [16.x]
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Check code
+        uses: actions/checkout@v4
+
+      - name: Setup node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies in api
+        run: yarn
+        working-directory: ./api
+
+      - name: Build project  
+        run: yarn build
+        working-directory: ./api
+
+      - name: Install dependencies in client
+        run: yarn
+        working-directory: ./client
+
+      - name: Test unit test client
+        run: yarn test
+        working-directory: ./client
+
+      # - name: Test api
+      #   run: 
+      #     yarn test
+      #     echo "my STRAPI_ADMIN_CLIENT_PREVIEW_SECRET is ${{ secrets.STRAPI_ADMIN_CLIENT_PREVIEW_SECRET }}"
+      #   working-directory: ./api
+
+  # Step 2: Build Docker Image
+  build-docker:
+    needs: test-source-code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }} # Use the token here
+
+      - name: Build Docker Image Api
+        run: |
+          docker build -f api/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest ./api
+
+      - name: Push Docker Image Api to DockerHub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
+
+      - name: Build Docker Image Client
+        run: |
+          docker build -f client/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest ./client
+
+      - name: Push Docker Image Client to DockerHub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
+
+  # Step 3: Test Docker Image
+  test-docker-image:
+    needs: build-docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }} # Use the token here
+
+      - name: Pull and Run Docker Image Api
+        run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
+          docker run -d --name test-container-foodadvisor-api ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
+
+      - name: Pull and Run Docker Image Client
+        run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
+          docker run -d --name test-container-foodadvisor-client ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
+
+      - name: Install dependencies in client
+        run: |
+          docker exec test-container-foodadvisor-client yarn
+
+      - name: Run Automated Tests in Docker Container
+        run: |
+          docker exec test-container-foodadvisor-client yarn test 
+
+      - name: Clean Up Docker Container
+        run: |
+          docker stop test-container-foodadvisor-client
+          docker rm test-container-foodadvisor-client
+          docker stop test-container-foodadvisor-api
+          docker rm test-container-foodadvisor-api
+
+  # Step 4: Check image and Deploy
+  check-image-and-deploy:
+    needs: 
+      - test-source-code
+      - build-docker
+      - test-docker-image
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout Repository
+        uses: actions/checkout@v3    
+        
+      # Step 2: Check if Docker Image Exists
+      - name: Check if Docker Image Exists
+        id: check_image
+        run: |
+          REPOSITORY="${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client"  # Replace with your DockerHub repository name
+          TAG="latest"
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_TOKEN }}" https://hub.docker.com/v2/repositories/${REPOSITORY}/tags/${TAG}/)
+          if [ "$RESPONSE" -ne 200 ]; then
+              echo "Docker image not found. Exiting workflow."
+              exit 1
+          fi
+          echo "Docker image exists. Proceeding to deployment."
+
+      # Step 3: Set AWS Credentials in Environment Variables
+      - name: Set AWS Credentials
+        if: ${{ steps.check_image.outcome == 'success' }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: echo "AWS credentials set."
+
+      # Step 4: Create EC2 Instance and Deploy the Application
+      - name: Create EC2 Instance and Deploy the Application
+        id: create_ec2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          # Define instance details
+          INSTANCE_ID=$(aws ec2 run-instances \
+            --image-id ami-06b21ccaeff8cd686 \
+            --instance-type t2.medium \
+            --key-name ${{ secrets.AWS_KP_NAME }} \
+            --security-group-ids ${{ secrets.AWS_SG_ID }} \
+            --user-data file://user-data.sh \
+            --query 'Instances[0].InstanceId' \
+            --output text)
+
+          echo "Instance ID: $INSTANCE_ID"
+          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+
+          # Wait for the instance to be running
+          aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+
+          PUBLIC_IP=$(aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query 'Reservations[0].Instances[0].PublicIpAddress' \
+            --output text)
+
+          echo "public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
+          echo "public_ip : $PUBLIC_IP"
+
+          # Output the instance public DNS
+          INSTANCE_PUBLIC_DNS=$(aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query 'Reservations[0].Instances[0].PublicDnsName' \
+            --output text)
+            
+          echo "Instance Public DNS: $INSTANCE_PUBLIC_DNS"
+          echo "public_dns=$INSTANCE_PUBLIC_DNS" >> $GITHUB_OUTPUT
+          
+          # echo "http://$PUBLIC_IP:1337"
+          # echo "http://$PUBLIC_IP:3000"
+
+      - name: Ready SSH
+        env:
+          PLUBIC_IP: ${{ steps.create_ec2.outputs.public_ip }}
+        run: |
+          echo "Waiting for SSH"
+          # Try until port 22 is open
+          while ! nc -z ${{ steps.create_ec2.outputs.public_ip }} 22; do
+            echo "SSH not ready yet..."
+            sleep 10
+          done
+          echo "public_ip : ${{ steps.create_ec2.outputs.public_ip }}"
+
+      - name: Create environment file
+        run: |
+          touch .env 
+          echo HOST=0.0.0.0 >> .env
+          echo PORT=1337 >> .env
+          echo STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000 >> .env
+          echo STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }} >> .env
+
+      - name: Transfer .env to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" | base64 --decode > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa .env ec2-user@${{ steps.create_ec2.outputs.public_ip }}:/home/ec2-user/.env
+
+      - name: SSH into EC2 and Pull Docker Image and Run Docker Image
+        if: ${{ steps.check_image.outcome == 'success' }}
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+          PUBLIC_IP: ${{ steps.create_ec2.outputs.public_ip }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          # Define EC2 public IP
+          PUBLIC_IP="${{ steps.create_ec2.outputs.public_ip }}"
+
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ steps.create_ec2.outputs.public_ip }} << EOF
+          sudo yum install -y docker
+          sudo service docker start
+
+            # docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
+            # docker pull ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
+
+          PREVIEW_SECRET=$(openssl rand -hex 32)
+          JWT_SECRET=$PREVIEW_SECRET
+
+          sudo docker run -d \
+            --name foodadvisor-api \
+            -p 1337:1337 \
+            --env-file /home/ec2-user/.env \
+             ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
+
+          sudo docker run -d \
+            --name foodadvisor-client \
+            -p 3000:3000 \
+            -e NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337 \
+            -e PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }} \
+             ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
+
+          # sudo docker exec foodadvisor-api sh -c 'echo "HOST=0.0.0.0\nPORT=1337\nSTRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000\nSTRAPI_ADMIN_CLIENT_PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}" > /app/.env'
+          # sudo docker stop foodadvisor-api
+          # sudo docker start foodadvisor-api
+          # sudo docker logs foodadvisor-api
+
+          # sudo docker exec foodadvisor-client sh -c 'echo "PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}\nNEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337" > /app/.env'
+          # sudo docker stop foodadvisor-client
+          # sudo docker start foodadvisor-client
+          # sudo docker logs foodadvisor-client
+          EOF
+            
+          echo "public_ip : ${{ steps.create_ec2.outputs.public_ip }}"
+          echo "http://${{ steps.create_ec2.outputs.public_ip }}:1337"
+          echo "http://${{ steps.create_ec2.outputs.public_ip }}:3000"
