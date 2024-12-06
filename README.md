@@ -601,11 +601,9 @@ The workflow runs tests across the following combinations:
 
 #### Operating Systems
 - ubuntu-latest
-- macos-latest
 
 #### Node.js Versions
 - 16.x
-- 18.x
 
 ## Workflow Steps:
 1. Check code
