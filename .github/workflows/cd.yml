@@ -106,6 +106,16 @@ jobs:
           echo NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337 >> .env
           echo PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}  >> .env
 
+      - name: Transfer .env to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" | base64 --decode > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa .env ec2-user@${{ steps.create_ec2.outputs.public_ip }}:/home/ec2-user/.env
+
       - name: SSH into EC2 and Pull Docker Image and Run Docker Image
         if: ${{ steps.check_image.outcome == 'success' }}
         env:
@@ -132,13 +142,13 @@ jobs:
           sudo docker run -d \
             --name foodadvisor-api \
             -p 1337:1337 \
-            --env-file .env \
+            --env-file /home/ec2-user/.env \
              ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
 
           sudo docker run -d \
             --name foodadvisor-client \
             -p 3000:3000 \
-            --env-file .env \
+            --env-file /home/ec2-user/.env \
              ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
 
           # sudo docker exec foodadvisor-api sh -c 'echo "HOST=0.0.0.0\nPORT=1337\nSTRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000\nSTRAPI_ADMIN_CLIENT_PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}" > /app/.env'
