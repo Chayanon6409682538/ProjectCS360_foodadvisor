@@ -1,23 +1,20 @@
-# เลือก base image
+# Use Node.js as the base image
 FROM node:16
 
-# ตั้ง working directory
+# Set working directory inside the container
 WORKDIR /app
 
-# คัดลอกไฟล์ package.json และ yarn.lock
+# Copy package.json and package-lock.json
 COPY package.json yarn.lock ./
 
-# ติดตั้ง dependencies
+# Install dependencies
 RUN yarn install
 
-# คัดลอกไฟล์ทั้งหมด
+# Copy application code
 COPY . .
 
-# สร้าง production build
-RUN yarn build
-
-# เปิดพอร์ตที่ Next.js ใช้งาน
+# Expose the port the app runs on
 EXPOSE 3000
 
-# คำสั่งเริ่มต้นเมื่อ container ทำงาน
-CMD ["yarn", "start"]
+# Command to run the application
+CMD ["sh", "-c", "yarn build && yarn start"]
