@@ -3,9 +3,9 @@
 ## Table of Contents 
 - [Group Information](#group-information)
 - [Project Goal](#project-goal)
-  - [Feature](#feature)
-  - [Technologies Used](#technologies-used)
-  - [Software Requirement](#software-requirement)
+  - [Feature](#--feature)
+  - [Technologies Used](#--technologies-used)
+  - [Software Requirement](#--software-requirement)
 - [Setup AWS EC2 Instance](#setup-aws-ec2-instance)
 - [How to Deploy and Run the Project Manually](#how-to-deploy-and-run-the-project-manually)
 - [How to Deploy and Run the Project Using the Provided Bash Script](#how-to-deploy-and-run-the-project-using-the-provided-bash-script-specify-the-bash-script-path-in-the-repo)
