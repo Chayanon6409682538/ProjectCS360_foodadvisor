@@ -109,6 +109,14 @@ jobs:
           # Define EC2 public IP
           PUBLIC_IP="${{ steps.create_ec2.outputs.public_ip }}"
 
+          touch .env 
+          echo HOST=0.0.0.0 >> .env
+          echo PORT=1337 >> .env
+          echo STRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000 >> .env
+          echo STRAPI_ADMIN_CLIENT_PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }} >> .env
+          echo NEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337 >> .env
+          echo PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}  >> .env
+
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ steps.create_ec2.outputs.public_ip }} << EOF
           sudo yum install -y docker
           sudo service docker start
@@ -122,22 +130,24 @@ jobs:
           sudo docker run -d \
             --name foodadvisor-api \
             -p 1337:1337 \
+            --env-file .env \
              ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_api:latest
 
           sudo docker run -d \
             --name foodadvisor-client \
             -p 3000:3000 \
+            --env-file .env \
              ${{ secrets.DOCKER_USERNAME }}/cs360_foodadvisor_client:latest
 
-          sudo docker exec foodadvisor-api sh -c 'echo "HOST=0.0.0.0\nPORT=1337\nSTRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000\nSTRAPI_ADMIN_CLIENT_PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}T" > /app/.env'
-          sudo docker stop foodadvisor-api
-          sudo docker start foodadvisor-api
-          sudo docker logs foodadvisor-api
+          # sudo docker exec foodadvisor-api sh -c 'echo "HOST=0.0.0.0\nPORT=1337\nSTRAPI_ADMIN_CLIENT_URL=http://${{ steps.create_ec2.outputs.public_ip }}:3000\nSTRAPI_ADMIN_CLIENT_PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}" > /app/.env'
+          # sudo docker stop foodadvisor-api
+          # sudo docker start foodadvisor-api
+          # sudo docker logs foodadvisor-api
 
-          sudo docker exec foodadvisor-client sh -c 'echo "PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}\nNEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337" > /app/.env'
-          sudo docker stop foodadvisor-client
-          sudo docker start foodadvisor-client
-          sudo docker logs foodadvisor-client
+          # sudo docker exec foodadvisor-client sh -c 'echo "PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}\nNEXT_PUBLIC_API_URL=http://${{ steps.create_ec2.outputs.public_ip }}:1337" > /app/.env'
+          # sudo docker stop foodadvisor-client
+          # sudo docker start foodadvisor-client
+          # sudo docker logs foodadvisor-client
           EOF
             
           echo "public_ip : ${{ steps.create_ec2.outputs.public_ip }}"
