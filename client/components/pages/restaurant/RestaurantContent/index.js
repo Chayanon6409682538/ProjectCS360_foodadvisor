@@ -129,7 +129,7 @@ const RestaurantContent = ({ pageData }) => {
       <section className="flex flex-col gap-y-2">
         <div className="text-center pt-20">
           <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            Menu
+            Menus
           </p>
         </div>
         <Menu items={menuItems} />
